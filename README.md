@@ -2,7 +2,7 @@
 ## Group members
 - Aadi Mahajan            [33855994]   (amah0061@student.monash.edu)
 - James Thomson           [33856257]   (jtho0098@student.monash.edu)
-- Lance Miranda           [ID]         (lmir0004@student.monash.edu)
+- Lance Miranda           [31481795]         (lmir0004@student.monash.edu)
 - Ryan Shanta             [32284470]   (rsha0057@student.monash.edu)
 - Xavier Hasiotis-Welsh   [33880271]   (xhas0001@student.monash.edu)
 
