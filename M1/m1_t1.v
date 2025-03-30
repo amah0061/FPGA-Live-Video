@@ -83,7 +83,7 @@ m1_nios_system u0 (
 .hex_3_export(),
 .key_export(KEY[1:0]),
 .ledr_export(LEDR[9:0]),
-.reset_reset_n(),
+.reset_reset_n(KEY[0]),
 .sdram_addr(DRAM_ADDR),
 .sdram_ba(DRAM_BA),      		
 .sdram_cas_n(DRAM_CAS_N),
