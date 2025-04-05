@@ -2,9 +2,9 @@
  * alt_sys_init.c - HAL initialization source
  *
  * Machine generated for CPU 'nios2_gen2_0' in SOPC Builder design 'm1_nios_system'
- * SOPC Builder design path: ../../m1_nios_system.sopcinfo
+ * SOPC Builder design path: ../../../M1/m1_nios_system.sopcinfo
  *
- * Generated: Sun Mar 30 15:24:00 EST 2025
+ * Generated: Sat Apr 05 15:30:50 EST 2025
  */
 
 /*
@@ -60,6 +60,7 @@
 
 #include "altera_nios2_gen2_irq.h"
 #include "altera_avalon_jtag_uart.h"
+#include "altera_avalon_spi.h"
 #include "altera_avalon_timer.h"
 
 /*
@@ -68,6 +69,7 @@
 
 ALTERA_NIOS2_GEN2_IRQ_INSTANCE ( NIOS2_GEN2_0, nios2_gen2_0);
 ALTERA_AVALON_JTAG_UART_INSTANCE ( JTAG_UART_0, jtag_uart_0);
+ALTERA_AVALON_SPI_INSTANCE ( SPI_0, spi_0);
 ALTERA_AVALON_TIMER_INSTANCE ( TIMER_0, timer_0);
 
 /*
@@ -93,4 +95,5 @@ void alt_sys_init( void )
 {
     ALTERA_AVALON_TIMER_INIT ( TIMER_0, timer_0);
     ALTERA_AVALON_JTAG_UART_INIT ( JTAG_UART_0, jtag_uart_0);
+    ALTERA_AVALON_SPI_INIT ( SPI_0, spi_0);
 }

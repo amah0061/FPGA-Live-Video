@@ -2,11 +2,11 @@
 <sch:Settings xmlns:sch="http://www.altera.com/embeddedsw/bsp/schema">
         <BspType>hal</BspType>
         <BspVersion>default</BspVersion>
-        <BspGeneratedTimeStamp>30/03/2025 5:37:09 PM</BspGeneratedTimeStamp>
-        <BspGeneratedUnixTimeStamp>1743316629783</BspGeneratedUnixTimeStamp>
-        <BspGeneratedLocation>C:\intelFPGA_lite\18.1\3073\ECE3073-Project2025-Group-B06\software\m1_nios_bsp</BspGeneratedLocation>
+        <BspGeneratedTimeStamp>05/04/2025 3:30:49 PM</BspGeneratedTimeStamp>
+        <BspGeneratedUnixTimeStamp>1743827449914</BspGeneratedUnixTimeStamp>
+        <BspGeneratedLocation>C:\GitHub\ECE3073-Project2025-Group-B06\ECE3073-Project2025-Group-B06\NIOS_System\software\m1_nios_bsp</BspGeneratedLocation>
         <BspSettingsFile>settings.bsp</BspSettingsFile>
-        <SopcDesignFile>..\..\m1_nios_system.sopcinfo</SopcDesignFile>
+        <SopcDesignFile>..\..\..\M1\m1_nios_system.sopcinfo</SopcDesignFile>
         <JdiFile>default</JdiFile>
         <Cpu>nios2_gen2_0</Cpu>
         <SchemaVersion>1.9</SchemaVersion>
@@ -911,62 +911,68 @@
                 <attributes>memory</attributes>
         </MemoryMap>
         <MemoryMap>
-                <slaveDescriptor>timer_0</slaveDescriptor>
+                <slaveDescriptor>spi_0</slaveDescriptor>
                 <addressRange>0x04041000 - 0x0404101F</addressRange>
+                <addressSpan>32</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>timer_0</slaveDescriptor>
+                <addressRange>0x04041020 - 0x0404103F</addressRange>
                 <addressSpan>32</addressSpan>
                 <attributes>timer</attributes>
         </MemoryMap>
         <MemoryMap>
                 <slaveDescriptor>camera</slaveDescriptor>
-                <addressRange>0x04041020 - 0x0404102F</addressRange>
-                <addressSpan>16</addressSpan>
-                <attributes/>
-        </MemoryMap>
-        <MemoryMap>
-                <slaveDescriptor>data</slaveDescriptor>
-                <addressRange>0x04041030 - 0x0404103F</addressRange>
-                <addressSpan>16</addressSpan>
-                <attributes/>
-        </MemoryMap>
-        <MemoryMap>
-                <slaveDescriptor>address</slaveDescriptor>
                 <addressRange>0x04041040 - 0x0404104F</addressRange>
                 <addressSpan>16</addressSpan>
                 <attributes/>
         </MemoryMap>
         <MemoryMap>
-                <slaveDescriptor>hex_3</slaveDescriptor>
+                <slaveDescriptor>data</slaveDescriptor>
                 <addressRange>0x04041050 - 0x0404105F</addressRange>
                 <addressSpan>16</addressSpan>
                 <attributes/>
         </MemoryMap>
         <MemoryMap>
-                <slaveDescriptor>hex_0</slaveDescriptor>
+                <slaveDescriptor>address</slaveDescriptor>
                 <addressRange>0x04041060 - 0x0404106F</addressRange>
                 <addressSpan>16</addressSpan>
                 <attributes/>
         </MemoryMap>
         <MemoryMap>
-                <slaveDescriptor>key</slaveDescriptor>
+                <slaveDescriptor>hex_3</slaveDescriptor>
                 <addressRange>0x04041070 - 0x0404107F</addressRange>
                 <addressSpan>16</addressSpan>
                 <attributes/>
         </MemoryMap>
         <MemoryMap>
-                <slaveDescriptor>sw</slaveDescriptor>
+                <slaveDescriptor>hex_0</slaveDescriptor>
                 <addressRange>0x04041080 - 0x0404108F</addressRange>
                 <addressSpan>16</addressSpan>
                 <attributes/>
         </MemoryMap>
         <MemoryMap>
-                <slaveDescriptor>ledr</slaveDescriptor>
+                <slaveDescriptor>key</slaveDescriptor>
                 <addressRange>0x04041090 - 0x0404109F</addressRange>
                 <addressSpan>16</addressSpan>
                 <attributes/>
         </MemoryMap>
         <MemoryMap>
+                <slaveDescriptor>sw</slaveDescriptor>
+                <addressRange>0x040410A0 - 0x040410AF</addressRange>
+                <addressSpan>16</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>ledr</slaveDescriptor>
+                <addressRange>0x040410B0 - 0x040410BF</addressRange>
+                <addressSpan>16</addressSpan>
+                <attributes/>
+        </MemoryMap>
+        <MemoryMap>
                 <slaveDescriptor>jtag_uart_0</slaveDescriptor>
-                <addressRange>0x040410A0 - 0x040410A7</addressRange>
+                <addressRange>0x040410C0 - 0x040410C7</addressRange>
                 <addressSpan>8</addressSpan>
                 <attributes>printable</attributes>
         </MemoryMap>

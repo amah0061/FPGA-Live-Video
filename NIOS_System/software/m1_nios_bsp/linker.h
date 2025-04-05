@@ -2,9 +2,9 @@
  * linker.h - Linker script mapping information
  *
  * Machine generated for CPU 'nios2_gen2_0' in SOPC Builder design 'm1_nios_system'
- * SOPC Builder design path: ../../m1_nios_system.sopcinfo
+ * SOPC Builder design path: ../../../M1/m1_nios_system.sopcinfo
  *
- * Generated: Sun Mar 30 15:24:00 EST 2025
+ * Generated: Sat Apr 05 15:30:50 EST 2025
  */
 
 /*

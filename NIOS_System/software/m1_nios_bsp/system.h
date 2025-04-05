@@ -2,9 +2,9 @@
  * system.h - SOPC Builder system and BSP software package information
  *
  * Machine generated for CPU 'nios2_gen2_0' in SOPC Builder design 'm1_nios_system'
- * SOPC Builder design path: ../../m1_nios_system.sopcinfo
+ * SOPC Builder design path: ../../../M1/m1_nios_system.sopcinfo
  *
- * Generated: Sun Mar 30 15:24:00 EST 2025
+ * Generated: Sat Apr 05 15:30:50 EST 2025
  */
 
 /*
@@ -145,6 +145,7 @@
 #define __ALTERA_AVALON_NEW_SDRAM_CONTROLLER
 #define __ALTERA_AVALON_ONCHIP_MEMORY2
 #define __ALTERA_AVALON_PIO
+#define __ALTERA_AVALON_SPI
 #define __ALTERA_AVALON_TIMER
 #define __ALTERA_NIOS2_GEN2
 
@@ -165,19 +166,19 @@
 #define ALT_NUM_INTERNAL_INTERRUPT_CONTROLLERS 1
 #define ALT_NUM_INTERRUPT_CONTROLLERS 1
 #define ALT_STDERR "/dev/jtag_uart_0"
-#define ALT_STDERR_BASE 0x40410a0
+#define ALT_STDERR_BASE 0x40410c0
 #define ALT_STDERR_DEV jtag_uart_0
 #define ALT_STDERR_IS_JTAG_UART
 #define ALT_STDERR_PRESENT
 #define ALT_STDERR_TYPE "altera_avalon_jtag_uart"
 #define ALT_STDIN "/dev/jtag_uart_0"
-#define ALT_STDIN_BASE 0x40410a0
+#define ALT_STDIN_BASE 0x40410c0
 #define ALT_STDIN_DEV jtag_uart_0
 #define ALT_STDIN_IS_JTAG_UART
 #define ALT_STDIN_PRESENT
 #define ALT_STDIN_TYPE "altera_avalon_jtag_uart"
 #define ALT_STDOUT "/dev/jtag_uart_0"
-#define ALT_STDOUT_BASE 0x40410a0
+#define ALT_STDOUT_BASE 0x40410c0
 #define ALT_STDOUT_DEV jtag_uart_0
 #define ALT_STDOUT_IS_JTAG_UART
 #define ALT_STDOUT_PRESENT
@@ -190,7 +191,7 @@
  *
  */
 
-#define ADDRESS_BASE 0x4041040
+#define ADDRESS_BASE 0x4041060
 #define ADDRESS_BIT_CLEARING_EDGE_REGISTER 0
 #define ADDRESS_BIT_MODIFYING_OUTPUT_REGISTER 0
 #define ADDRESS_CAPTURE 0
@@ -218,7 +219,7 @@
  */
 
 #define ALT_MODULE_CLASS_camera altera_avalon_pio
-#define CAMERA_BASE 0x4041020
+#define CAMERA_BASE 0x4041040
 #define CAMERA_BIT_CLEARING_EDGE_REGISTER 0
 #define CAMERA_BIT_MODIFYING_OUTPUT_REGISTER 0
 #define CAMERA_CAPTURE 0
@@ -245,7 +246,7 @@
  */
 
 #define ALT_MODULE_CLASS_data altera_avalon_pio
-#define DATA_BASE 0x4041030
+#define DATA_BASE 0x4041050
 #define DATA_BIT_CLEARING_EDGE_REGISTER 0
 #define DATA_BIT_MODIFYING_OUTPUT_REGISTER 0
 #define DATA_CAPTURE 0
@@ -283,7 +284,7 @@
  */
 
 #define ALT_MODULE_CLASS_hex_0 altera_avalon_pio
-#define HEX_0_BASE 0x4041060
+#define HEX_0_BASE 0x4041080
 #define HEX_0_BIT_CLEARING_EDGE_REGISTER 0
 #define HEX_0_BIT_MODIFYING_OUTPUT_REGISTER 0
 #define HEX_0_CAPTURE 0
@@ -310,7 +311,7 @@
  */
 
 #define ALT_MODULE_CLASS_hex_3 altera_avalon_pio
-#define HEX_3_BASE 0x4041050
+#define HEX_3_BASE 0x4041070
 #define HEX_3_BIT_CLEARING_EDGE_REGISTER 0
 #define HEX_3_BIT_MODIFYING_OUTPUT_REGISTER 0
 #define HEX_3_CAPTURE 0
@@ -337,7 +338,7 @@
  */
 
 #define ALT_MODULE_CLASS_jtag_uart_0 altera_avalon_jtag_uart
-#define JTAG_UART_0_BASE 0x40410a0
+#define JTAG_UART_0_BASE 0x40410c0
 #define JTAG_UART_0_IRQ 1
 #define JTAG_UART_0_IRQ_INTERRUPT_CONTROLLER_ID 0
 #define JTAG_UART_0_NAME "/dev/jtag_uart_0"
@@ -355,7 +356,7 @@
  */
 
 #define ALT_MODULE_CLASS_key altera_avalon_pio
-#define KEY_BASE 0x4041070
+#define KEY_BASE 0x4041090
 #define KEY_BIT_CLEARING_EDGE_REGISTER 0
 #define KEY_BIT_MODIFYING_OUTPUT_REGISTER 0
 #define KEY_CAPTURE 1
@@ -382,7 +383,7 @@
  */
 
 #define ALT_MODULE_CLASS_ledr altera_avalon_pio
-#define LEDR_BASE 0x4041090
+#define LEDR_BASE 0x40410b0
 #define LEDR_BIT_CLEARING_EDGE_REGISTER 0
 #define LEDR_BIT_MODIFYING_OUTPUT_REGISTER 0
 #define LEDR_CAPTURE 0
@@ -472,12 +473,43 @@
 
 
 /*
+ * spi_0 configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_spi_0 altera_avalon_spi
+#define SPI_0_BASE 0x4041000
+#define SPI_0_CLOCKMULT 1
+#define SPI_0_CLOCKPHASE 1
+#define SPI_0_CLOCKPOLARITY 1
+#define SPI_0_CLOCKUNITS "Hz"
+#define SPI_0_DATABITS 8
+#define SPI_0_DATAWIDTH 16
+#define SPI_0_DELAYMULT "1.0E-9"
+#define SPI_0_DELAYUNITS "ns"
+#define SPI_0_EXTRADELAY 0
+#define SPI_0_INSERT_SYNC 0
+#define SPI_0_IRQ 4
+#define SPI_0_IRQ_INTERRUPT_CONTROLLER_ID 0
+#define SPI_0_ISMASTER 1
+#define SPI_0_LSBFIRST 0
+#define SPI_0_NAME "/dev/spi_0"
+#define SPI_0_NUMSLAVES 1
+#define SPI_0_PREFIX "spi_"
+#define SPI_0_SPAN 32
+#define SPI_0_SYNC_REG_DEPTH 2
+#define SPI_0_TARGETCLOCK 5000000u
+#define SPI_0_TARGETSSDELAY "0.0"
+#define SPI_0_TYPE "altera_avalon_spi"
+
+
+/*
  * sw configuration
  *
  */
 
 #define ALT_MODULE_CLASS_sw altera_avalon_pio
-#define SW_BASE 0x4041080
+#define SW_BASE 0x40410a0
 #define SW_BIT_CLEARING_EDGE_REGISTER 0
 #define SW_BIT_MODIFYING_OUTPUT_REGISTER 0
 #define SW_CAPTURE 1
@@ -505,7 +537,7 @@
 
 #define ALT_MODULE_CLASS_timer_0 altera_avalon_timer
 #define TIMER_0_ALWAYS_RUN 0
-#define TIMER_0_BASE 0x4041000
+#define TIMER_0_BASE 0x4041020
 #define TIMER_0_COUNTER_SIZE 32
 #define TIMER_0_FIXED_PERIOD 0
 #define TIMER_0_FREQ 50000000

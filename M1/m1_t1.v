@@ -40,9 +40,9 @@ wire [3:0] data_raw, data_buff;
 wire [16:0] read_address, write_address;
 
 // SPI predef pins to high impedance (missing CAM_READY)
-assign GPIO[2] = 1'bz
-assign GPIO[5] = 1'bz
-assign GPIO[7:9] = 3'bzzz
+assign GPIO[1:0] = 2'bzz;
+assign GPIO[4:3] = 2'bzz;
+assign GPIO[6] = 1'bz;
 
 // Instantiate sdram_clk
 sdram_pll pll0 (
@@ -82,7 +82,7 @@ vga_controller vga_controller_inst(
 // Instantiate nios system
 m1_nios_system u0 (
 .address_export(write_address),
-.camera_export(),
+.camera_export(GPIO[2]),
 .clk_clk(CLOCK_50),
 .data_export(data_raw),
 .hex_0_export(),
@@ -103,7 +103,7 @@ m1_nios_system u0 (
 .spi_MISO       (GPIO[7]),       //     spi.MISO -> SPI_SDO
 .spi_MOSI       (GPIO[8]),       //        .MOSI -> SPI_SDI
 .spi_SCLK       (GPIO[9]),       //        .SCLK -> SPI_SCLK
-.spi_SS_n       (GPIO[4]),       //        .SS_n -> SPI_CS_N
+.spi_SS_n       (GPIO[5]),       //        .SS_n -> SPI_CS_N
 
 .sw_export(SW[9:0])     		
 );
