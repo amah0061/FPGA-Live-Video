@@ -35,43 +35,39 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   9 .debug_aranges 000005f8  00000000  00000000  000056b8  2**3
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_info   00007aaf  00000000  00000000  00005cb0  2**0
+ 10 .debug_info   00007b1e  00000000  00000000  00005cb0  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_abbrev 00002bc6  00000000  00000000  0000d75f  2**0
+ 11 .debug_abbrev 00002bc6  00000000  00000000  0000d7ce  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_line   00002bc6  00000000  00000000  00010325  2**0
+ 12 .debug_line   00002bc6  00000000  00000000  00010394  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_frame  00000b54  00000000  00000000  00012eec  2**2
+ 13 .debug_frame  00000b54  00000000  00000000  00012f5c  2**2
                   CONTENTS, READONLY, DEBUGGING
- 14 .debug_str    00001c32  00000000  00000000  00013a40  2**0
+ 14 .debug_str    00001c57  00000000  00000000  00013ab0  2**0
                   CONTENTS, READONLY, DEBUGGING
- 15 .debug_loc    00000c3e  00000000  00000000  00015672  2**0
+ 15 .debug_loc    00000c3e  00000000  00000000  00015707  2**0
                   CONTENTS, READONLY, DEBUGGING
- 16 .debug_alt_sim_info 00000030  00000000  00000000  000162b0  2**2
+ 16 .debug_alt_sim_info 00000030  00000000  00000000  00016348  2**2
                   CONTENTS, READONLY, DEBUGGING
- 17 .debug_ranges 000001d8  00000000  00000000  000162e0  2**3
+ 17 .debug_ranges 000001d8  00000000  00000000  00016378  2**3
                   CONTENTS, READONLY, DEBUGGING
- 18 .thread_model 00000003  00000000  00000000  00018032  2**0
+ 18 .thread_model 00000003  00000000  00000000  0001806b  2**0
                   CONTENTS, READONLY
- 19 .cpu          0000000c  00000000  00000000  00018035  2**0
+ 19 .cpu          0000000c  00000000  00000000  0001806e  2**0
                   CONTENTS, READONLY
- 20 .qsys         00000001  00000000  00000000  00018041  2**0
+ 20 .qsys         00000001  00000000  00000000  0001807a  2**0
                   CONTENTS, READONLY
- 21 .simulation_enabled 00000001  00000000  00000000  00018042  2**0
+ 21 .simulation_enabled 00000001  00000000  00000000  0001807b  2**0
                   CONTENTS, READONLY
- 22 .stderr_dev   0000000b  00000000  00000000  00018043  2**0
+ 22 .stderr_dev   0000000b  00000000  00000000  0001807c  2**0
                   CONTENTS, READONLY
- 23 .stdin_dev    0000000b  00000000  00000000  0001804e  2**0
+ 23 .stdin_dev    0000000b  00000000  00000000  00018087  2**0
                   CONTENTS, READONLY
- 24 .stdout_dev   0000000b  00000000  00000000  00018059  2**0
+ 24 .stdout_dev   0000000b  00000000  00000000  00018092  2**0
                   CONTENTS, READONLY
- 25 .sopc_system_name 0000000e  00000000  00000000  00018064  2**0
+ 25 .sopc_system_name 0000000e  00000000  00000000  0001809d  2**0
                   CONTENTS, READONLY
- 26 .quartus_project_dir 00000039  00000000  00000000  00018072  2**0
-                  CONTENTS, READONLY
- 27 .jdi          0000551c  00000000  00000000  000180ab  2**0
-                  CONTENTS, READONLY
- 28 .sopcinfo     0006d858  00000000  00000000  0001d5c7  2**0
+ 26 .quartus_project_dir 0000005e  00000000  00000000  000180ab  2**0
                   CONTENTS, READONLY
 SYMBOL TABLE:
 04020000 l    d  .entry	00000000 .entry
@@ -755,39 +751,25 @@ alt_after_alt_main:
  402028c:	003fff06 	br	402028c <__flash_rwdata_start+0xffffd9e4>
 
 04020290 <main>:
-#include "system.h"
-#include "io.h"
-int main(void)
-{
  4020290:	defff704 	addi	sp,sp,-36
  4020294:	dfc00815 	stw	ra,32(sp)
  4020298:	df000715 	stw	fp,28(sp)
  402029c:	dc000615 	stw	r16,24(sp)
  40202a0:	df000704 	addi	fp,sp,28
-int address;
-int col = 320;
  40202a4:	00805004 	movi	r2,320
  40202a8:	e0bffb15 	stw	r2,-20(fp)
-int row = 240;
  40202ac:	00803c04 	movi	r2,240
  40202b0:	e0bffc15 	stw	r2,-16(fp)
-int colour;
-while(1)
-{
-for (int i = 0; i < row; i++){
  40202b4:	e03ff915 	stw	zero,-28(fp)
  40202b8:	00002906 	br	4020360 <main+0xd0>
-	for (int j = 0; j < col; j++){
  40202bc:	e03ffa15 	stw	zero,-24(fp)
  40202c0:	00002106 	br	4020348 <main+0xb8>
-		address = j + i*row;
  40202c4:	e0fff917 	ldw	r3,-28(fp)
  40202c8:	e0bffc17 	ldw	r2,-16(fp)
  40202cc:	1887383a 	mul	r3,r3,r2
  40202d0:	e0bffa17 	ldw	r2,-24(fp)
  40202d4:	1885883a 	add	r2,r3,r2
  40202d8:	e0bffd15 	stw	r2,-12(fp)
-		colour = ((j / 20 + i / 20) % 2) ? 0xF : 0x0;
  40202dc:	e0bffa17 	ldw	r2,-24(fp)
  40202e0:	01400504 	movi	r5,20
  40202e4:	1009883a 	mov	r4,r2
@@ -804,46 +786,26 @@ for (int i = 0; i < row; i++){
  4020310:	00000106 	br	4020318 <main+0x88>
  4020314:	0005883a 	mov	r2,zero
  4020318:	e0bffe15 	stw	r2,-8(fp)
-		IOWR(ADDRESS_BASE,0,address);
  402031c:	00810134 	movhi	r2,1028
  4020320:	10841004 	addi	r2,r2,4160
  4020324:	e0fffd17 	ldw	r3,-12(fp)
  4020328:	10c00035 	stwio	r3,0(r2)
-		IOWR(DATA_BASE,0,colour);
  402032c:	00810134 	movhi	r2,1028
  4020330:	10840c04 	addi	r2,r2,4144
  4020334:	e0fffe17 	ldw	r3,-8(fp)
  4020338:	10c00035 	stwio	r3,0(r2)
-int row = 240;
-int colour;
-while(1)
-{
-for (int i = 0; i < row; i++){
-	for (int j = 0; j < col; j++){
  402033c:	e0bffa17 	ldw	r2,-24(fp)
  4020340:	10800044 	addi	r2,r2,1
  4020344:	e0bffa15 	stw	r2,-24(fp)
  4020348:	e0fffa17 	ldw	r3,-24(fp)
  402034c:	e0bffb17 	ldw	r2,-20(fp)
  4020350:	18bfdc16 	blt	r3,r2,40202c4 <__flash_rwdata_start+0xffffda1c>
-int col = 320;
-int row = 240;
-int colour;
-while(1)
-{
-for (int i = 0; i < row; i++){
  4020354:	e0bff917 	ldw	r2,-28(fp)
  4020358:	10800044 	addi	r2,r2,1
  402035c:	e0bff915 	stw	r2,-28(fp)
  4020360:	e0fff917 	ldw	r3,-28(fp)
  4020364:	e0bffc17 	ldw	r2,-16(fp)
  4020368:	18bfd416 	blt	r3,r2,40202bc <__flash_rwdata_start+0xffffda14>
-		IOWR(DATA_BASE,0,colour);
-	}
-}
-
-
-}
  402036c:	003fd106 	br	40202b4 <__flash_rwdata_start+0xffffda0c>
 
 04020370 <__divsi3>:
