@@ -1,6 +1,13 @@
 
 module m1_nios_system (
+	address_export,
+	camera_export,
 	clk_clk,
+	data_export,
+	hex_0_export,
+	hex_3_export,
+	key_export,
+	ledr_export,
 	reset_reset_n,
 	sdram_addr,
 	sdram_ba,
@@ -11,16 +18,20 @@ module m1_nios_system (
 	sdram_dqm,
 	sdram_ras_n,
 	sdram_we_n,
-	ledr_export,
 	sw_export,
-	key_export,
-	hex_0_export,
-	hex_3_export,
-	address_export,
-	data_export,
-	camera_export);	
+	spi_MISO,
+	spi_MOSI,
+	spi_SCLK,
+	spi_SS_n);	
 
+	output	[16:0]	address_export;
+	input		camera_export;
 	input		clk_clk;
+	output	[3:0]	data_export;
+	output	[23:0]	hex_0_export;
+	output	[23:0]	hex_3_export;
+	input	[1:0]	key_export;
+	output	[9:0]	ledr_export;
 	input		reset_reset_n;
 	output	[12:0]	sdram_addr;
 	output	[1:0]	sdram_ba;
@@ -31,12 +42,9 @@ module m1_nios_system (
 	output	[1:0]	sdram_dqm;
 	output		sdram_ras_n;
 	output		sdram_we_n;
-	output	[9:0]	ledr_export;
 	input	[9:0]	sw_export;
-	input	[1:0]	key_export;
-	output	[23:0]	hex_0_export;
-	output	[23:0]	hex_3_export;
-	output	[16:0]	address_export;
-	output	[3:0]	data_export;
-	input		camera_export;
+	input		spi_MISO;
+	output		spi_MOSI;
+	output		spi_SCLK;
+	output		spi_SS_n;
 endmodule

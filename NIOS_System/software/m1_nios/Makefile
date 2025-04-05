@@ -142,7 +142,8 @@ ACDS_VERSION := 18.1
 ELF := m1_nios.elf
 
 # Paths to C, C++, and assembly source files.
-C_SRCS := test_fix.c
+C_SRCS += test_fix.c
+C_SRCS += SPI_controller.c
 CXX_SRCS :=
 ASM_SRCS :=
 

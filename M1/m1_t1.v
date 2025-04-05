@@ -20,6 +20,7 @@ module m1_t1 (
 	input [1:0] KEY,
 	output [9:0] LEDR,
 	input [9:0] SW,
+	inout [39:0] GPIO,
 	// sdram
    output [12:0] DRAM_ADDR,
 	output [1:0] DRAM_BA,
@@ -37,6 +38,11 @@ module m1_t1 (
 wire vga_clk;
 wire [3:0] data_raw, data_buff;
 wire [16:0] read_address, write_address;
+
+// SPI predef pins to high impedance (missing CAM_READY)
+assign GPIO[2] = 1'bz
+assign GPIO[5] = 1'bz
+assign GPIO[7:9] = 3'bzzz
 
 // Instantiate sdram_clk
 sdram_pll pll0 (
@@ -93,8 +99,18 @@ m1_nios_system u0 (
 .sdram_dqm({DRAM_UDQM, DRAM_LDQM}),
 .sdram_ras_n(DRAM_RAS_N),
 .sdram_we_n(DRAM_WE_N),
+//spi stuff
+.spi_MISO       (GPIO[7]),       //     spi.MISO -> SPI_SDO
+.spi_MOSI       (GPIO[8]),       //        .MOSI -> SPI_SDI
+.spi_SCLK       (GPIO[9]),       //        .SCLK -> SPI_SCLK
+.spi_SS_n       (GPIO[4]),       //        .SS_n -> SPI_CS_N
+
 .sw_export(SW[9:0])     		
 );
+
+  
+
+
 
 
 endmodule
