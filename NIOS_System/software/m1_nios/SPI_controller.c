@@ -56,7 +56,7 @@ int main(void)
 				for (int j = 0; j < col; j++){
 					address = j + i*row;
 					pixel = frame_buffer[address];
-					pixel &= 0x0f;
+					//pixel &= 0x0f;		// as we shift the top 4 bits to the right earlier, all other bits except for bottom 4 are zero so I believe this is reduntant
 					IOWR(ADDRESS_BASE,0,address);
 					IOWR(DATA_BASE,0,pixel);
 				}
@@ -65,5 +65,3 @@ int main(void)
 		}
 	}
 }
-
-
