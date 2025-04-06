@@ -27,16 +27,16 @@ int main(void)
 	int frameSize = row*col;
 	// TO RESEARCH: Apparently int is 4 bytes, but char is 1 byte so it might be better to use char??
 	alt_u8 *frame_buffer = (alt_u8 *)NEW_SDRAM_CONTROLLER_0_BASE;
-	alt_u8 camMode = 0x0;	//command for greyscale
+	alt_u8 camMode = 0x0;	//command for grayscale
 	alt_u8 camBuffer[76800];
 	int camReady;
 	int address;
 	alt_u8 pixel;
 
 	while(1){
-		// Recieving the frame
+		// Receiving the frame
 		alt_avalon_spi_command(
-			0x4041000,  // SPI base, manually input because there was some weird error occuring
+			SPI_0_BASE,  // SPI base
 			0, 			// sub device
 			1, 			// Size of buffer in bytes
 			&camMode,	// Setting data capture mode
