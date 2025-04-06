@@ -20,7 +20,7 @@ module m1_t1 (
 	input [1:0] KEY,
 	output [9:0] LEDR,
 	input [9:0] SW,
-	inout [39:0] GPIO,
+	inout [9:0] GPIO,
 	// sdram
    output [12:0] DRAM_ADDR,
 	output [1:0] DRAM_BA,

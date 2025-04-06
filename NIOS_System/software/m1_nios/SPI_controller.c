@@ -13,49 +13,55 @@
 //**********************
 
 #include "../m1_nios_bsp/system.h"
-#include "io.h"
-#include <altera_avalon_spi.h>
-#include <altera_avalon_spi_regs.h>
-
-#define FRAME_WIDTH 320
-#define FRAME_HEIGHT 240
-#define FRAME_SIZE (FRAME_WIDTH * FRAME_HEIGHT)
-#define GREYSCALE 0x0
+#include "../m1_nios_bsp/HAL/inc/io.h"
+#include "../m1_nios_bsp/HAL/inc/alt_types.h"
+#include "../m1_nios_bsp/drivers/inc/altera_avalon_spi.h"
+#include "../m1_nios_bsp/drivers/inc/altera_avalon_spi_regs.h"
 
 int main(void)
 {
-	// TO RESEARCH: Apparently int is 4 bytes, but char is 1 byte so it might be better to use char??
+
 	// Defining variables
-	int *frame_buffer = (int *)NEW_SDRAM_CONTROLLER_0_BASE;
-	int cam_mode = GREYSCALE;	//command for greyscale
-	static int cam_buffer[76800];
-
+	int col = 320;
+	int row = 240;
+	int frameSize = row*col;
+	// TO RESEARCH: Apparently int is 4 bytes, but char is 1 byte so it might be better to use char??
+	alt_u8 *frame_buffer = (alt_u8 *)NEW_SDRAM_CONTROLLER_0_BASE;
+	alt_u8 camMode = 0x0;	//command for greyscale
+	alt_u8 camBuffer[76800];
+	int camReady;
 	int address;
-	int pixel;
+	alt_u8 pixel;
 
-	// Calling SPI Protocol (send cam mode and gets data stored in array "cam_buffer")
-	// NOTE: BASED ASSUMPTION IS CAMERA SENDS ONE WHOLE FRAME (think it was mentioned in the doc somewhere)
-	alt_avalon_spi_command(
-			SPI_0_BASE,0, 			// SPI base and which sub device
-			1, &cam_mode,			// Setting data capture mode
-			FRAME_SIZE, cam_buffer,		// Saving camera data
-			0);						// flags: told to set to 0
-
-	// Sending Cam data to SDRAM
-	for (int i = 0; i < FRAME_SIZE; i++) {
-	        frame_buffer[i] = cam_buffer[i] >> 4;  // Shift down 4 bits
-	    }
-
-	// Copying cam data to pixel buffer
 	while(1){
+		// Recieving the frame
+		alt_avalon_spi_command(
+			0x4041000,  // SPI base, manually input because there was some weird error occuring
+			0, 			// sub device
+			1, 			// Size of buffer in bytes
+			&camMode,	// Setting data capture mode
+			frameSize,  // size of receive buffer
+			camBuffer,// Saving camera data
+			0			// flags: told to set to 0
+		);
+
+		// Sending Cam data to SDRAM
+		for (int i = 0; i < frameSize; i++) {
+			frame_buffer[i] = camBuffer[i] >> 4;  // Shift down 4 bits
+		}
 		// Writing each pixel
-		for (int i = 0; i < FRAME_HEIGHT; i++){
-			for (int j = 0; j < FRAME_WIDTH; j++){
-				address = j + i*FRAME_HEIGHT;
-				pixel = frame_buffer[address];
-				IOWR(ADDRESS_BASE,0,address);
-				IOWR(DATA_BASE,0,pixel);
+		camReady = 0;
+		while (camReady == 0){
+			for (int i = 0; i < row; i++){
+				for (int j = 0; j < col; j++){
+					address = j + i*row;
+					pixel = frame_buffer[address];
+					pixel &= 0x0f;
+					IOWR(ADDRESS_BASE,0,address);
+					IOWR(DATA_BASE,0,pixel);
+				}
 			}
+			camReady = IORD(CAMERA_BASE,0);
 		}
 	}
 }
