@@ -27,18 +27,18 @@ int main(void)
 	alt_u8 pixel;
 
 
-	//
+	// HEX display conversion table
 	alt_u8 hex_digits[10] = {
-	    0x3F, // 0
-	    0x06, // 1
-	    0x5B, // 2
-	    0x4F, // 3
-	    0x66, // 4
-	    0x6D, // 5
-	    0x7D, // 6
-	    0x07, // 7
-	    0x7F, // 8
-	    0x6F  // 9
+	    0xC0, // 0
+	    0xF9, // 1
+	    0xA4, // 2
+	    0xB0, // 3
+	    0x99, // 4
+	    0x92, // 5
+	    0x82, // 6
+	    0xF8, // 7
+	    0x80, // 8
+	    0x90  // 9
 	};
 
 	while(1){
@@ -87,7 +87,7 @@ int main(void)
 
 			// Convert to HEX display encoding
 			hex3 = hex_digits[d0];
-			hex2 = hex_digits[d1] | 0x80; // Decimal point on HEX[2]
+			hex2 = hex_digits[d1] & 0x7F; // Decimal point on HEX[2]
 			hex1 = hex_digits[d2];
 			hex0 = hex_digits[d3];
 

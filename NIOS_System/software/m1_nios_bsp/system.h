@@ -4,7 +4,7 @@
  * Machine generated for CPU 'nios2_gen2_0' in SOPC Builder design 'm1_nios_system'
  * SOPC Builder design path: ../../../M1/m1_nios_system.sopcinfo
  *
- * Generated: Mon Apr 07 19:27:26 EST 2025
+ * Generated: Mon Apr 07 21:03:17 EST 2025
  */
 
 /*
@@ -284,7 +284,7 @@
  */
 
 #define ALT_MODULE_CLASS_hex_0 altera_avalon_pio
-#define HEX_0_BASE 0x4041080 //HEX[0:2]
+#define HEX_0_BASE 0x4041080
 #define HEX_0_BIT_CLEARING_EDGE_REGISTER 0
 #define HEX_0_BIT_MODIFYING_OUTPUT_REGISTER 0
 #define HEX_0_CAPTURE 0
@@ -311,7 +311,7 @@
  */
 
 #define ALT_MODULE_CLASS_hex_3 altera_avalon_pio
-#define HEX_3_BASE 0x4041070 // HEX[3:5]
+#define HEX_3_BASE 0x4041070
 #define HEX_3_BIT_CLEARING_EDGE_REGISTER 0
 #define HEX_3_BIT_MODIFYING_OUTPUT_REGISTER 0
 #define HEX_3_CAPTURE 0
