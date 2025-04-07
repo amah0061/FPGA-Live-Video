@@ -4,7 +4,7 @@
  * Machine generated for CPU 'nios2_gen2_0' in SOPC Builder design 'm1_nios_system'
  * SOPC Builder design path: ../../../M1/m1_nios_system.sopcinfo
  *
- * Generated: Mon Apr 07 18:53:04 EST 2025
+ * Generated: Mon Apr 07 19:27:26 EST 2025
  */
 
 /*
@@ -571,8 +571,8 @@
 #define USEC_COUNTER_DRIVEN_SIM_VALUE 0
 #define USEC_COUNTER_EDGE_TYPE "NONE"
 #define USEC_COUNTER_FREQ 50000000
-#define USEC_COUNTER_HAS_IN 0
-#define USEC_COUNTER_HAS_OUT 1
+#define USEC_COUNTER_HAS_IN 1
+#define USEC_COUNTER_HAS_OUT 0
 #define USEC_COUNTER_HAS_TRI 0
 #define USEC_COUNTER_IRQ -1
 #define USEC_COUNTER_IRQ_INTERRUPT_CONTROLLER_ID -1

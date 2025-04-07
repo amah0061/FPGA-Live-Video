@@ -3,10 +3,15 @@ module usec_counter (
 	output reg [31:0] usec
 );
 
+	reg counter;
+
 	always @(posedge clk) 
-		begin			
-			usec = usec + 1;
+		begin
+			if (counter == 50) begin
+				usec = usec + 1;
+				counter = 1;
+			end else 
+				counter = counter + 1;
 		end
 			
-
 endmodule 

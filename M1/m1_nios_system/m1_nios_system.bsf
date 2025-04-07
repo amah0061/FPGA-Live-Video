@@ -185,13 +185,6 @@ refer to the applicable agreement for further details.
 		(line (pt 0 648)(pt 128 648)(line_width 1))
 	)
 	(port
-		(pt 0 728)
-		(output)
-		(text "usec_export[31..0]" (rect 0 0 73 12)(font "Arial" (font_size 8)))
-		(text "usec_export[31..0]" (rect 4 717 112 728)(font "Arial" (font_size 8)))
-		(line (pt 0 728)(pt 128 728)(line_width 3))
-	)
-	(port
 		(pt 0 512)
 		(bidir)
 		(text "sdram_dq[15..0]" (rect 0 0 64 12)(font "Arial" (font_size 8)))

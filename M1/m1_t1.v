@@ -32,7 +32,7 @@ module m1_t1 (
 	output DRAM_LDQM,
 	output DRAM_UDQM,
 	output DRAM_RAS_N,
-	output DRAM_WE_N, 
+	output DRAM_WE_N 
 );
 // Define wires
 wire vga_clk;
