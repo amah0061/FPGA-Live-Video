@@ -50,7 +50,6 @@ int main(void)
 				}
 			}
 			endTime = IORD(USEC_COUNTER_BASE,0);
-			frameRate = endTime - startTime;
 
 			if (endTime < startTime)
 				frameRate = endTime - startTime + 2^32;
@@ -58,6 +57,7 @@ int main(void)
 				frameRate = endTime - startTime;
 
 			frameRate = frameRate * 0.02; // frame rate in micro seconds now
+
 			// Check if camera is ready with a frame
 			camReady = IORD(CAMERA_BASE,0);
 		}

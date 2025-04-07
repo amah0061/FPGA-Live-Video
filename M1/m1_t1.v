@@ -32,7 +32,7 @@ module m1_t1 (
 	output DRAM_LDQM,
 	output DRAM_UDQM,
 	output DRAM_RAS_N,
-	output DRAM_WE_N	
+	output DRAM_WE_N, 
 );
 // Define wires
 wire vga_clk;
@@ -108,17 +108,12 @@ m1_nios_system u0 (
 .sdram_ras_n(DRAM_RAS_N),
 .sdram_we_n(DRAM_WE_N),
 //spi stuff
-.spi_MISO       (GPIO[7]),       //     spi.MISO -> SPI_SDO
-.spi_MOSI       (GPIO[8]),       //        .MOSI -> SPI_SDI
-.spi_SCLK       (GPIO[9]),       //        .SCLK -> SPI_SCLK
-.spi_SS_n       (GPIO[5]),       //        .SS_n -> SPI_CS_N
+.spi_MISO(GPIO[7]),       //     spi.MISO -> SPI_SDO
+.spi_MOSI(GPIO[8]),       //        .MOSI -> SPI_SDI
+.spi_SCLK(GPIO[9]),       //        .SCLK -> SPI_SCLK
+.spi_SS_n(GPIO[5]),       //        .SS_n -> SPI_CS_N
 //micro second counter
 .usec_export(usec_count)   		
 );
-
-  
-
-
-
 
 endmodule
