@@ -21,6 +21,7 @@
 		.spi_MOSI       (<connected-to-spi_MOSI>),       //        .MOSI
 		.spi_SCLK       (<connected-to-spi_SCLK>),       //        .SCLK
 		.spi_SS_n       (<connected-to-spi_SS_n>),       //        .SS_n
-		.sw_export      (<connected-to-sw_export>)       //      sw.export
+		.sw_export      (<connected-to-sw_export>),      //      sw.export
+		.usec_export    (<connected-to-usec_export>)     //    usec.export
 	);
 

@@ -2,9 +2,9 @@
 <sch:Settings xmlns:sch="http://www.altera.com/embeddedsw/bsp/schema">
         <BspType>hal</BspType>
         <BspVersion>default</BspVersion>
-        <BspGeneratedTimeStamp>07/04/2025 1:50:49 PM</BspGeneratedTimeStamp>
-        <BspGeneratedUnixTimeStamp>1743997849861</BspGeneratedUnixTimeStamp>
-        <BspGeneratedLocation>C:\GitHub\ECE3073-Project2025-Group-B06\ECE3073-Project2025-Group-B06\NIOS_System\software\m1_nios_bsp</BspGeneratedLocation>
+        <BspGeneratedTimeStamp>Apr 7, 2025 5:28:40 PM</BspGeneratedTimeStamp>
+        <BspGeneratedUnixTimeStamp>1744010920520</BspGeneratedUnixTimeStamp>
+        <BspGeneratedLocation>C:\Users\umaha\Desktop\ECE3073\Project\ECE3073-Project2025-Group-B06\NIOS_System\software\m1_nios_bsp</BspGeneratedLocation>
         <BspSettingsFile>settings.bsp</BspSettingsFile>
         <SopcDesignFile>..\..\..\M1\m1_nios_system.sopcinfo</SopcDesignFile>
         <JdiFile>default</JdiFile>
@@ -903,6 +903,12 @@
                 <addressRange>0x00000000 - 0x03FFFFFF</addressRange>
                 <addressSpan>67108864</addressSpan>
                 <attributes>memory</attributes>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>usec_counter</slaveDescriptor>
+                <addressRange>0x04000000 - 0x0400000F</addressRange>
+                <addressSpan>16</addressSpan>
+                <attributes/>
         </MemoryMap>
         <MemoryMap>
                 <slaveDescriptor>onchip_memory2_0</slaveDescriptor>

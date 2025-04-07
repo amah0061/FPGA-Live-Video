@@ -66,6 +66,13 @@ refer to the applicable agreement for further details.
 		(line (pt 0 688)(pt 128 688)(line_width 3))
 	)
 	(port
+		(pt 0 728)
+		(input)
+		(text "usec_export[31..0]" (rect 0 0 73 12)(font "Arial" (font_size 8)))
+		(text "usec_export[31..0]" (rect 4 717 112 728)(font "Arial" (font_size 8)))
+		(line (pt 0 728)(pt 128 728)(line_width 3))
+	)
+	(port
 		(pt 0 72)
 		(output)
 		(text "address_export[16..0]" (rect 0 0 86 12)(font "Arial" (font_size 8)))

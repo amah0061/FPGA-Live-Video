@@ -15,9 +15,13 @@ int main(void)
 	alt_u8 camBuffer[frameSize]; // Array to store frame data
 	int camReady;
 	int address;
+	int startTime;
+	int endTime;
+	int frameRate;
 	alt_u8 pixel;
 
 	while(1){
+		startTime = IORD(USEC_COUNTER_BASE,0);
 		// Receiving the frame
 		alt_avalon_spi_command(
 			SPI_0_BASE,  // SPI base
@@ -25,7 +29,7 @@ int main(void)
 			1, 			// Transmit buffer size (1 bit command)
 			&camMode,	// Setting data capture mode
 			frameSize,  // Size of receive buffer
-			camBuffer,  // Saving camera data to desitination buffer
+			camBuffer,  // Saving camera data to destination buffer
 			0			// flags: told to set to 0
 		);
 
@@ -45,6 +49,15 @@ int main(void)
 					IOWR(DATA_BASE,0,pixel);
 				}
 			}
+			endTime = IORD(USEC_COUNTER_BASE,0);
+			frameRate = endTime - startTime;
+
+			if (endTime < startTime)
+				frameRate = endTime - startTime + 2^32;
+			else
+				frameRate = endTime - startTime;
+
+			frameRate = frameRate * 0.02; // frame rate in micro seconds now
 			// Check if camera is ready with a frame
 			camReady = IORD(CAMERA_BASE,0);
 		}

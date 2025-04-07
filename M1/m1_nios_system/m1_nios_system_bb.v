@@ -22,7 +22,8 @@ module m1_nios_system (
 	spi_MOSI,
 	spi_SCLK,
 	spi_SS_n,
-	sw_export);	
+	sw_export,
+	usec_export);	
 
 	output	[16:0]	address_export;
 	input		camera_export;
@@ -47,4 +48,5 @@ module m1_nios_system (
 	output		spi_SCLK;
 	output		spi_SS_n;
 	input	[9:0]	sw_export;
+	input	[31:0]	usec_export;
 endmodule
