@@ -33,9 +33,10 @@ module m1_t1 (
 	output DRAM_UDQM,
 	output DRAM_RAS_N,
 	output DRAM_WE_N,
-	output [23:0] HEX0,
-	output [23:0] HEX3
-	
+	output [7:0] HEX0,
+	output [7:0] HEX1,
+	output [7:0] HEX2,
+	output [7:0] HEX3
 	
 );
 // Define wires
@@ -123,12 +124,10 @@ m1_nios_system u0 (
 );
 
 
-
 // HEX values 
-assign HEX0  = hex0;
-assign HEX3 = hex3;
-
-
-
+assign HEX0 = hex0[7:0];
+assign HEX1 = hex0[15:8];
+assign HEX2 = hex0[23:16];
+assign HEX3 = hex3[7:0];
 
 endmodule
