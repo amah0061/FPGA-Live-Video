@@ -17,8 +17,29 @@ int main(void)
 	int address;
 	int startTime;
 	int endTime;
-	int frameRate;
+	int frameTime;
+	float frameRate;
+	int rateInt;
+	int d0, d1, d2, d3;
+	alt_u8 hex3, hex2, hex1, hex0;
+	alt_u32 hex_high, hex_low;
+
 	alt_u8 pixel;
+
+
+	//
+	alt_u8 hex_digits[10] = {
+	    0x3F, // 0
+	    0x06, // 1
+	    0x5B, // 2
+	    0x4F, // 3
+	    0x66, // 4
+	    0x6D, // 5
+	    0x7D, // 6
+	    0x07, // 7
+	    0x7F, // 8
+	    0x6F  // 9
+	};
 
 	while(1){
 		startTime = IORD(USEC_COUNTER_BASE,0);
@@ -51,12 +72,33 @@ int main(void)
 			}
 			endTime = IORD(USEC_COUNTER_BASE,0);
 
-			if (endTime < startTime)
-				frameRate = endTime - startTime + 2^32;
-			else
-				frameRate = endTime - startTime;
+			frameTime = endTime - startTime;
 
-			frameRate = frameRate * 0.02; // frame rate in micro seconds now
+			frameRate = 1000000.0 / frameTime;
+
+			// Multiply by 100 and truncate to int
+			rateInt = (int)(frameRate * 100);
+
+			// Extract decimal digits
+			d0 = (rateInt / 1000) % 10;  // Tens
+			d1 = (rateInt / 100) % 10;   // Ones
+			d2 = (rateInt / 10) % 10;    // Tenths
+			d3 = rateInt % 10;           // Hundredths
+
+			// Convert to HEX display encoding
+			hex3 = hex_digits[d0];
+			hex2 = hex_digits[d1] | 0x80; // Decimal point on HEX[2]
+			hex1 = hex_digits[d2];
+			hex0 = hex_digits[d3];
+
+			// Pack into 24-bit words
+			hex_high  = hex3;                    // HEX[3] only
+			hex_low = (hex2 << 16) | (hex1 << 8) | hex0; // HEX[2:0]
+
+			// Write to PIOs
+			IOWR(HEX_3_BASE, 0, hex_high);
+			IOWR(HEX_0_BASE, 0, hex_low);
+
 
 			// Check if camera is ready with a frame
 			camReady = IORD(CAMERA_BASE,0);

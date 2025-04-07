@@ -32,13 +32,19 @@ module m1_t1 (
 	output DRAM_LDQM,
 	output DRAM_UDQM,
 	output DRAM_RAS_N,
-	output DRAM_WE_N 
+	output DRAM_WE_N,
+	output [23:0] HEX0,
+	output [23:0] HEX3
+	
+	
 );
 // Define wires
 wire vga_clk;
 wire [3:0] data_raw, data_buff;
 wire [16:0] read_address, write_address;
 wire [31:0] usec_count;
+wire [23:0] hex0;
+wire [23:0] hex3;
 
 // SPI predef pins to high impedance (missing CAM_READY)
 assign GPIO[1:0] = 2'bzz;
@@ -92,8 +98,8 @@ m1_nios_system u0 (
 .camera_export(GPIO[2]),
 .clk_clk(CLOCK_50),
 .data_export(data_raw),
-.hex_0_export(),
-.hex_3_export(),
+.hex_0_export(hex0),
+.hex_3_export(hex3),
 .key_export(KEY[1:0]),
 .ledr_export(LEDR[9:0]),
 .sw_export(SW[9:0]),
@@ -115,5 +121,14 @@ m1_nios_system u0 (
 //micro second counter
 .usec_export(usec_count)   		
 );
+
+
+
+// HEX values 
+assign HEX0  = hex0;
+assign HEX3 = hex3;
+
+
+
 
 endmodule
