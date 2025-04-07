@@ -28,7 +28,7 @@ int main(void)
 	// TO RESEARCH: Apparently int is 4 bytes, but char is 1 byte so it might be better to use char??
 	alt_u8 *frame_buffer = (alt_u8 *)NEW_SDRAM_CONTROLLER_0_BASE;
 	alt_u8 camMode = 0x0;	//command for grayscale
-	alt_u8 camBuffer[76800];
+	alt_u8 camBuffer[frameSize];
 	int camReady;
 	int address;
 	alt_u8 pixel;
@@ -37,18 +37,21 @@ int main(void)
 		// Receiving the frame
 		alt_avalon_spi_command(
 			SPI_0_BASE,  // SPI base
-			0, 			// sub device
-			1, 			// Size of buffer in bytes
+			0, 			// sub device (slave select)
+			1, 			// Transmit buffer size (1 bit command)
 			&camMode,	// Setting data capture mode
-			frameSize,  // size of receive buffer
-			camBuffer,// Saving camera data
+			frameSize,  // Size of receive buffer
+			camBuffer,// Saving camera data to desitination buffer
 			0			// flags: told to set to 0
 		);
 
-		// Sending Cam data to SDRAM
+		// Process and store frame in SDRAM (only keep lower 4 bits)
 		for (int i = 0; i < frameSize; i++) {
 			frame_buffer[i] = camBuffer[i] >> 4;  // Shift down 4 bits
 		}
+
+		// MAYBE potentially include while loop to wait for display to be ready?
+
 		// Writing each pixel
 		camReady = 0;
 		while (camReady == 0){
@@ -61,7 +64,12 @@ int main(void)
 					IOWR(DATA_BASE,0,pixel);
 				}
 			}
+			// Shouldn't we be writing a value to say that we are ready to read again? instead of reading
+			// Or maybe read and then check that we are ready to write a value?
 			camReady = IORD(CAMERA_BASE,0);
+			if (camReady == 1) {
+				IOWR(CAMERA_BASE, 0, 1);
+			}
 		}
 	}
 }
