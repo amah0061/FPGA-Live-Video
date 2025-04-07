@@ -18,11 +18,11 @@ module m1_nios_system (
 	sdram_dqm,
 	sdram_ras_n,
 	sdram_we_n,
-	sw_export,
 	spi_MISO,
 	spi_MOSI,
 	spi_SCLK,
-	spi_SS_n);	
+	spi_SS_n,
+	sw_export);	
 
 	output	[16:0]	address_export;
 	input		camera_export;
@@ -42,9 +42,9 @@ module m1_nios_system (
 	output	[1:0]	sdram_dqm;
 	output		sdram_ras_n;
 	output		sdram_we_n;
-	input	[9:0]	sw_export;
 	input		spi_MISO;
 	output		spi_MOSI;
 	output		spi_SCLK;
 	output		spi_SS_n;
+	input	[9:0]	sw_export;
 endmodule

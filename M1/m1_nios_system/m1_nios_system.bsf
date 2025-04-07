@@ -220,7 +220,7 @@ refer to the applicable agreement for further details.
 		(text "SS_n" (rect 133 643 290 1296)(font "Arial" (color 0 0 0)))
 		(text "sw" (rect 112 659 236 1331)(font "Arial" (color 128 0 0)(font_size 9)))
 		(text "export" (rect 133 683 302 1376)(font "Arial" (color 0 0 0)))
-		(text " m1_nios_system " (rect 244 704 584 1418)(font "Arial" ))
+		(text " system " (rect 285 704 618 1418)(font "Arial" ))
 		(line (pt 128 32)(pt 192 32)(line_width 1))
 		(line (pt 192 32)(pt 192 704)(line_width 1))
 		(line (pt 128 704)(pt 192 704)(line_width 1))

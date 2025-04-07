@@ -45,7 +45,7 @@ assign GPIO[4:3] = 2'bzz;
 assign GPIO[6] = 1'bz;
 
 // Instantiate sdram_clk
-sdram_pll pll0 (
+sdram_pll pll0(
 .inclk0(CLOCK_50),
 .c0(DRAM_CLK)
 );
