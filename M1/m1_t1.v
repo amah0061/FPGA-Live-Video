@@ -108,6 +108,8 @@ m1_nios_system u0 (
 .sw_export(SW[9:0])     		
 );
 
+.usec_export();
+
   
 
 

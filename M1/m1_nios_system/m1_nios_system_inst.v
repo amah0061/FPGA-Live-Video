@@ -17,10 +17,11 @@
 		.sdram_dqm      (<connected-to-sdram_dqm>),      //        .dqm
 		.sdram_ras_n    (<connected-to-sdram_ras_n>),    //        .ras_n
 		.sdram_we_n     (<connected-to-sdram_we_n>),     //        .we_n
-		.sw_export      (<connected-to-sw_export>),      //      sw.export
 		.spi_MISO       (<connected-to-spi_MISO>),       //     spi.MISO
 		.spi_MOSI       (<connected-to-spi_MOSI>),       //        .MOSI
 		.spi_SCLK       (<connected-to-spi_SCLK>),       //        .SCLK
-		.spi_SS_n       (<connected-to-spi_SS_n>)        //        .SS_n
+		.spi_SS_n       (<connected-to-spi_SS_n>),       //        .SS_n
+		.sw_export      (<connected-to-sw_export>),      //      sw.export
+		.usec_export    (<connected-to-usec_export>)     //    usec.export
 	);
 
