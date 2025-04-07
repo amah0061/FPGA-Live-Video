@@ -38,6 +38,7 @@ module m1_t1 (
 wire vga_clk;
 wire [3:0] data_raw, data_buff;
 wire [16:0] read_address, write_address;
+wire [31:0] usec_count;
 
 // SPI predef pins to high impedance (missing CAM_READY)
 assign GPIO[1:0] = 2'bzz;
@@ -79,6 +80,12 @@ vga_controller vga_controller_inst(
 .VGA_VS(VGA_VS)
 );
 
+//instantiate usec_counter
+usec_counter usec_counter_inst(
+.clk(CLOCK_50),
+.usec(usec_count)
+);
+
 // Instantiate nios system
 m1_nios_system u0 (
 .address_export(write_address),
@@ -89,6 +96,7 @@ m1_nios_system u0 (
 .hex_3_export(),
 .key_export(KEY[1:0]),
 .ledr_export(LEDR[9:0]),
+.sw_export(SW[9:0]),
 .reset_reset_n(KEY[0]),
 .sdram_addr(DRAM_ADDR),
 .sdram_ba(DRAM_BA),      		
@@ -104,11 +112,9 @@ m1_nios_system u0 (
 .spi_MOSI       (GPIO[8]),       //        .MOSI -> SPI_SDI
 .spi_SCLK       (GPIO[9]),       //        .SCLK -> SPI_SCLK
 .spi_SS_n       (GPIO[5]),       //        .SS_n -> SPI_CS_N
-
-.sw_export(SW[9:0])     		
+//micro second counter
+.usec_export(usec_count)   		
 );
-
-.usec_export();
 
   
 
