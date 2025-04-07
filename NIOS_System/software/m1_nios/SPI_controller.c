@@ -41,7 +41,11 @@ int main(void)
 	    0x90  // 9
 	};
 
+
+
 	while(1){
+
+
 		startTime = IORD(USEC_COUNTER_BASE,0);
 		// Receiving the frame
 		alt_avalon_spi_command(
@@ -72,9 +76,14 @@ int main(void)
 			}
 			endTime = IORD(USEC_COUNTER_BASE,0);
 
+
+
+
 			frameTime = endTime - startTime;
 
+
 			frameRate = 1000000.0 / frameTime;
+
 
 			// Multiply by 100 and truncate to int
 			rateInt = (int)(frameRate * 100);
@@ -84,6 +93,8 @@ int main(void)
 			d1 = (rateInt / 100) % 10;   // Ones
 			d2 = (rateInt / 10) % 10;    // Tenths
 			d3 = rateInt % 10;           // Hundredths
+
+
 
 			// Convert to HEX display encoding
 			hex3 = hex_digits[d0];
@@ -95,9 +106,11 @@ int main(void)
 			hex_high  = hex3;                    // HEX[3] only
 			hex_low = (hex2 << 16) | (hex1 << 8) | hex0; // HEX[2:0]
 
+
 			// Write to PIOs
 			IOWR(HEX_3_BASE, 0, hex_high);
 			IOWR(HEX_0_BASE, 0, hex_low);
+
 
 
 			// Check if camera is ready with a frame
