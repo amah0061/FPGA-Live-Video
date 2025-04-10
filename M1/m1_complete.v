@@ -14,7 +14,7 @@
 //
 // *********************************
 
-module m1_t1 (
+module m1_complete (
 	// task 1
 	input CLOCK_50,       
 	output wire [3:0] VGA_R,  
