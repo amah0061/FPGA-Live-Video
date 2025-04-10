@@ -3,8 +3,14 @@
 // Milestone 1 task 1 integration module
 // Made by Group B06
 // 
-// Author(s): James Thomson 33856257
-// Last Edited: 24/03/2025
+// Author(s): 
+//	James Thomson 33856257, 
+//	Aadi Mahajan 33855994, 
+//	Lance Miranda 31481795, 
+//	Ryan Shanta 32284470, 
+//	Xavier Hasiotis-Welsh 33880271,
+//
+// Last Edited: 10/04/2025
 //
 // *********************************
 
@@ -32,12 +38,20 @@ module m1_t1 (
 	output DRAM_LDQM,
 	output DRAM_UDQM,
 	output DRAM_RAS_N,
-	output DRAM_WE_N	
+	output DRAM_WE_N,
+	output [7:0] HEX0,
+	output [7:0] HEX1,
+	output [7:0] HEX2,
+	output [7:0] HEX3
+	
 );
 // Define wires
 wire vga_clk;
 wire [3:0] data_raw, data_buff;
 wire [16:0] read_address, write_address;
+wire [31:0] usec_count;
+wire [23:0] hex0;
+wire [23:0] hex3;
 
 // SPI predef pins to high impedance (missing CAM_READY)
 assign GPIO[1:0] = 2'bzz;
@@ -79,16 +93,23 @@ vga_controller vga_controller_inst(
 .VGA_VS(VGA_VS)
 );
 
+//instantiate usec_counter
+usec_counter usec_counter_inst(
+.clk(CLOCK_50),
+.usec(usec_count)
+);
+
 // Instantiate nios system
 m1_nios_system u0 (
 .address_export(write_address),
 .camera_export(GPIO[2]),
 .clk_clk(CLOCK_50),
 .data_export(data_raw),
-.hex_0_export(),
-.hex_3_export(),
+.hex_0_export(hex0),
+.hex_3_export(hex3),
 .key_export(KEY[1:0]),
 .ledr_export(LEDR[9:0]),
+.sw_export(SW[9:0]),
 .reset_reset_n(KEY[0]),
 .sdram_addr(DRAM_ADDR),
 .sdram_ba(DRAM_BA),      		
@@ -100,17 +121,19 @@ m1_nios_system u0 (
 .sdram_ras_n(DRAM_RAS_N),
 .sdram_we_n(DRAM_WE_N),
 //spi stuff
-.spi_MISO       (GPIO[7]),       //     spi.MISO -> SPI_SDO
-.spi_MOSI       (GPIO[8]),       //        .MOSI -> SPI_SDI
-.spi_SCLK       (GPIO[9]),       //        .SCLK -> SPI_SCLK
-.spi_SS_n       (GPIO[5]),       //        .SS_n -> SPI_CS_N
-
-.sw_export(SW[9:0])     		
+.spi_MISO(GPIO[7]),       //     spi.MISO -> SPI_SDO
+.spi_MOSI(GPIO[8]),       //        .MOSI -> SPI_SDI
+.spi_SCLK(GPIO[9]),       //        .SCLK -> SPI_SCLK
+.spi_SS_n(GPIO[5]),       //        .SS_n -> SPI_CS_N
+//micro second counter
+.usec_export(usec_count)   		
 );
 
-  
 
-
-
+// HEX values 
+assign HEX0 = hex0[7:0];
+assign HEX1 = hex0[15:8];
+assign HEX2 = hex0[23:16];
+assign HEX3 = hex3[7:0];
 
 endmodule

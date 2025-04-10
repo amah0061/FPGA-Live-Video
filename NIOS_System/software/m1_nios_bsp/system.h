@@ -4,7 +4,7 @@
  * Machine generated for CPU 'nios2_gen2_0' in SOPC Builder design 'm1_nios_system'
  * SOPC Builder design path: ../../../M1/m1_nios_system.sopcinfo
  *
- * Generated: Mon Apr 07 13:50:54 EST 2025
+ * Generated: Thu Apr 10 15:37:26 EST 2025
  */
 
 /*
@@ -554,5 +554,32 @@
 #define TIMER_0_TICKS_PER_SEC 1000
 #define TIMER_0_TIMEOUT_PULSE_OUTPUT 0
 #define TIMER_0_TYPE "altera_avalon_timer"
+
+
+/*
+ * usec_counter configuration
+ *
+ */
+
+#define ALT_MODULE_CLASS_usec_counter altera_avalon_pio
+#define USEC_COUNTER_BASE 0x4000000
+#define USEC_COUNTER_BIT_CLEARING_EDGE_REGISTER 0
+#define USEC_COUNTER_BIT_MODIFYING_OUTPUT_REGISTER 0
+#define USEC_COUNTER_CAPTURE 0
+#define USEC_COUNTER_DATA_WIDTH 32
+#define USEC_COUNTER_DO_TEST_BENCH_WIRING 0
+#define USEC_COUNTER_DRIVEN_SIM_VALUE 0
+#define USEC_COUNTER_EDGE_TYPE "NONE"
+#define USEC_COUNTER_FREQ 50000000
+#define USEC_COUNTER_HAS_IN 1
+#define USEC_COUNTER_HAS_OUT 0
+#define USEC_COUNTER_HAS_TRI 0
+#define USEC_COUNTER_IRQ -1
+#define USEC_COUNTER_IRQ_INTERRUPT_CONTROLLER_ID -1
+#define USEC_COUNTER_IRQ_TYPE "NONE"
+#define USEC_COUNTER_NAME "/dev/usec_counter"
+#define USEC_COUNTER_RESET_VALUE 0
+#define USEC_COUNTER_SPAN 16
+#define USEC_COUNTER_TYPE "altera_avalon_pio"
 
 #endif /* __SYSTEM_H_ */
