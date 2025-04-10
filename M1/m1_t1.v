@@ -3,8 +3,14 @@
 // Milestone 1 task 1 integration module
 // Made by Group B06
 // 
-// Author(s): James Thomson 33856257
-// Last Edited: 24/03/2025
+// Author(s): 
+//	James Thomson 33856257, 
+//	Aadi Mahajan 33855994, 
+//	Lance Miranda 31481795, 
+//	Ryan Shanta 32284470, 
+//	Xavier Hasiotis-Welsh 33880271,
+//
+// Last Edited: 10/04/2025
 //
 // *********************************
 
