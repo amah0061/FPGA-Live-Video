@@ -74,11 +74,12 @@ int main(void) {
 			flag		// flags: told to set to 0
 		);
 
-		/*
 		// Reset camera to be in a state to not except data
 		camReady = 0;
 		// Writing frame
 		while (camReady == 0){
+
+			/*
 			for (int i = 0; i < row; i++){
 				for (int j = 0; j < col; j++){
 					// Calculate address
@@ -90,7 +91,35 @@ int main(void) {
 					IOWR(DATA_BASE, 0, pixel);
 				}
 			}
-		*/
+			*/
+
+			for (int i = 0; i < row; i++){
+				for (int j = 0; j < col; j++){
+					// Calculate addresses
+					topLeftAddress = j + i * col;
+					topRightAddress = j + (i + 120) * col;
+					bottomLeftAddress = (j + 160) + i * col;
+					bottomRightAddress = (j + 160) + (i + 120) * col;
+
+					// Shift data to the right by 4 bits
+					pixel = camBuffer[topLeftAddress]>>4;
+
+					// Write addresses and data to pixel buffer
+					// Top Left image
+					IOWR(ADDRESS_BASE, 0, topLeftAddress);
+					IOWR(DATA_BASE, 0, pixel);
+					// Top Right image
+					IOWR(ADDRESS_BASE, 0, topRightAddress);
+					IOWR(DATA_BASE, 0, pixel);
+					// Bottom Left image
+					IOWR(ADDRESS_BASE, 0, bottomLeftAddress);
+					IOWR(DATA_BASE, 0, pixel);
+					// Bottom Right image
+					IOWR(ADDRESS_BASE, 0, bottomRightAddress);
+					IOWR(DATA_BASE, 0, pixel);
+				}
+			}
+
 			// endTime reads the current microsecond count which ends the measurement for the FPS
 			endTime = IORD(USEC_COUNTER_BASE,0);
 			// frameTime is the time taken to send and recieve data
@@ -122,7 +151,7 @@ int main(void) {
 
 			// Check if camera is ready with a frame
 			camReady = IORD(CAMERA_BASE,0);
-		//}
+		}
 	}
 }
 
