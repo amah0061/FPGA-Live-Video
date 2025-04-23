@@ -47,7 +47,8 @@ module m1_complete (
 	output GSENSOR_SCLK,
 	inout GSENSOR_SDI,
 	input GSENSOR_SDO,
-	output GSENSOR_CS_N
+	output GSENSOR_CS_N,
+	input [2:1] GSENSOR_INT
 );
 // Define wires
 wire vga_clk;
@@ -114,6 +115,9 @@ m1_nios_system u0 (
 .camera_export(GPIO[2]),
 .clk_clk(CLOCK_50),
 .data_export(data_raw),
+// Gyro
+.gsensor_int1_export(GSENSOR_INT[1]),
+.gsensor_int2_export(GSENSOR_INT[2]),
 .hex_0_export(hex0),
 .hex_3_export(hex3),
 .key_export(KEY[1:0]),
