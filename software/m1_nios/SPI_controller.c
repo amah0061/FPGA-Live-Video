@@ -22,10 +22,10 @@
 int main(void) {
 
 	// Defining variables
-	int col = 320;
-	int row = 240;
+	int col = 160;
+	int row = 120;
 	int frameSize = row * col;
-	alt_u8 camMode = 0x0;	// this is the command for the camera mode, where 0x0 is grayscale
+	alt_u8 camMode = 0x12;	// this is the command for the camera mode, where 0x0 is grayscale
 	alt_u8 *camBuffer = (alt_u8 *)malloc(frameSize * sizeof(alt_u8));
 	int deviceSelect = 0;
 	int bufferSize = 1;
@@ -74,6 +74,7 @@ int main(void) {
 			flag		// flags: told to set to 0
 		);
 
+		/*
 		// Reset camera to be in a state to not except data
 		camReady = 0;
 		// Writing frame
@@ -89,6 +90,7 @@ int main(void) {
 					IOWR(DATA_BASE, 0, pixel);
 				}
 			}
+		*/
 			// endTime reads the current microsecond count which ends the measurement for the FPS
 			endTime = IORD(USEC_COUNTER_BASE,0);
 			// frameTime is the time taken to send and recieve data
@@ -120,7 +122,7 @@ int main(void) {
 
 			// Check if camera is ready with a frame
 			camReady = IORD(CAMERA_BASE,0);
-		}
+		//}
 	}
 }
 
