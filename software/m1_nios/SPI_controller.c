@@ -31,7 +31,10 @@ int main(void) {
 	int bufferSize = 1;
 	int flag = 0;
 	int camReady;
-	int address;
+	int topLeftAddress;
+	int topRightAddress;
+	int bottomLeftAddress;
+	int bottomRightAddress;
 	int startTime;
 	int endTime;
 	int frameTime;
@@ -97,8 +100,8 @@ int main(void) {
 				for (int j = 0; j < col; j++){
 					// Calculate addresses
 					topLeftAddress = j + i * col;
-					topRightAddress = j + (i + 120) * col;
-					bottomLeftAddress = (j + 160) + i * col;
+					topRightAddress = (j + 160) + i * col;
+					bottomLeftAddress = j + (i + 120) * col;
 					bottomRightAddress = (j + 160) + (i + 120) * col;
 
 					// Shift data to the right by 4 bits
