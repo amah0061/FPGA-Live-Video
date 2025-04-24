@@ -56,6 +56,12 @@
 volatile int doubleTapFlag = 0;
 volatile int key0Flag = 0;
 volatile int key1Flag = 0;
+volatile int sw0Flag = 0;
+volatile int sw1Flag = 0;
+volatile int sw2Flag = 0;
+volatile int sw3Flag = 0;
+volatile int sw4Flag = 0;
+volatile int sw5Flag = 0;
 
 // Configure the gyro
 alt_u8 gyro_config[CONFIG_LENGHT] = {
@@ -96,6 +102,32 @@ void key_isr () {
 	}
 	IOWR_ALTERA_AVALON_PIO_EDGE_CAP(KEY_BASE,0);
 	IOWR(KEY_BASE, 3, 0);
+}
+
+// switch interrupt handler
+void switch_isr () {
+	ISR = IORD(SW_BASE, 3);
+	// here
+	if (ISR & 1) {
+			sw0Flag = 1;
+		}
+	if (ISR & 2) {
+			sw1Flag = 1;
+		}
+	if (ISR & 3) {
+			sw2Flag = 1;
+		}
+	if (ISR & 4) {
+			sw3Flag = 1;
+		}
+	if (ISR & 5) {
+			sw4Flag = 1;
+		}
+	if (ISR & 6) {
+			sw5Flag = 1;
+		}
+	IOWR_ALTERA_AVALON_PIO_EDGE_CAP(SW_BASE,0);
+	IOWR(SW_BASE, 3, 0);
 }
 
 
@@ -164,6 +196,12 @@ int main(void) {
 	IOWR(KEY_BASE, 3, 0); // Clear edge
 	IOWR(KEY_BASE, 2, 0x3); // Enable key interrupts for key 0 and 1
 	int keyISR_res = alt_ic_isr_register(KEY_IRQ_INTERRUPT_CONTROLLER_ID, KEY_IRQ, key_isr, NULL, 0x0);
+
+	// Switch interrupt setup
+	IOWR(SW_BASE, 3, 0); // Clear edge
+	IOWR(SW_BASE, 2, 0x3F); // Enable interrupts for switch 0 to 5 (first 4 switches to select which of the 4 displays to turn on, then next 2 switches select which image of the 4 is going to be put into the selected displays)
+	int swISR_res = alt_ic_isr_register(SW_IRQ_INTERRUPT_CONTROLLER_ID, SW_IRQ, switch_isr, NULL, 0x0);
+
 
 	while(1){
 		// startTime reads the current microsecond count in order to track the FPS
