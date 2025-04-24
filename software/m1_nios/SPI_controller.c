@@ -41,7 +41,7 @@ int main(void) {
 	int startTime;
 	int endTime;
 	int frameTime;
-	float timeConversion = 1000000.0;
+	float timeConversion = 2000000.0;
 	float frameRate;
 	int rateInt;
 	int d0, d1, d2, d3;
