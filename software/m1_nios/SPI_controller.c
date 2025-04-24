@@ -86,7 +86,6 @@ void gyro_isr(void * context) {
 int main(void) {
 
 	// Defining variables
-
 	int col = 320;
 	int row = 240;
 	int frameSize = row * col;
