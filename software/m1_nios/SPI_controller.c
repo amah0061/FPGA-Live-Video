@@ -54,6 +54,8 @@
 
 // Global interrupt flags
 volatile int doubleTapFlag = 0;
+volatile int key0Flag = 0;
+volatile int key1Flag = 0;
 
 // Configure the gyro
 alt_u8 gyro_config[CONFIG_LENGHT] = {
@@ -82,6 +84,20 @@ void gyro_isr(void * context) {
 	IOWR(GSENSOR_INT2_BASE, 3, 0);
 	doubleTapFlag = 1;
 }
+
+// key interrupt handler
+void key_isr () {
+	ISR = IORD(KEY_BASE, 3);
+	if (ISR & 1) {
+		key0Flag = 1;  // KEY[0] pressed
+	}
+	if (ISR & 2) {
+		key1Flag = 1;  // KEY[1] pressed
+	}
+	IOWR_ALTERA_AVALON_PIO_EDGE_CAP(KEY_BASE,0);
+	IOWR(KEY_BASE, 3, 0);
+}
+
 
 int main(void) {
 
@@ -142,7 +158,12 @@ int main(void) {
 	void* context = (void *) &isrRes;
 	IOWR(GSENSOR_INT2_BASE, 3, 0);
 	IOWR(GSENSOR_INT2_BASE, 2, 0x1);
-	int gyroISR_res = alt_ic_isr_register(GSENSOR_INT2_IRQ_INTERRUPT_CONTROLLER_ID,GSENSOR_INT2_IRQ,gyro_isr, context, 0x0);
+	int gyroISR_res = alt_ic_isr_register(GSENSOR_INT2_IRQ_INTERRUPT_CONTROLLER_ID,GSENSOR_INT2_IRQ, gyro_isr, context, 0x0);
+
+	// Key interrupt setup
+	IOWR(KEY_BASE, 3, 0); // Clear edge
+	IOWR(KEY_BASE, 2, 0x3); // Enable key interrupts for key 0 and 1
+	int keyISR_res = alt_ic_isr_register(KEY_IRQ_INTERRUPT_CONTROLLER_ID, KEY_IRQ, key_isr, NULL, 0x0);
 
 	while(1){
 		// startTime reads the current microsecond count in order to track the FPS
