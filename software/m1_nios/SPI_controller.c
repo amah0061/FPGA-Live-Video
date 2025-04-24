@@ -22,7 +22,7 @@
 int main(void) {
 
 	// Defining variables
-	int col = 320;
+	int col = 300;
 	int row = 240;
 	int frameSize = row * col;
 	alt_u8 camMode = 0x0;	// this is the command for the camera mode, where 0x0 is grayscale
