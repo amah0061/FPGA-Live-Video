@@ -24,6 +24,7 @@ int main(void) {
 	// Defining variables
 	int col = 160;
 	int row = 120;
+	int totalCol = 320;
 	int frameSize = row * col;
 	alt_u8 camMode = 0x12;	// this is the command for the camera mode, where 0x0 is grayscale
 	alt_u8 *camBuffer = (alt_u8 *)malloc(frameSize * sizeof(alt_u8));
@@ -31,6 +32,8 @@ int main(void) {
 	int bufferSize = 1;
 	int flag = 0;
 	int camReady;
+	int address;
+	int pixelAddress;
 	int topLeftAddress;
 	int topRightAddress;
 	int bottomLeftAddress;
@@ -86,26 +89,27 @@ int main(void) {
 			for (int i = 0; i < row; i++){
 				for (int j = 0; j < col; j++){
 					// Calculate address
-					address = j + i * row;
+					address = j + i * 320;
 					// Shift data to the right by 4 bits
 					pixel = camBuffer[address]>>4;
 					// Write address and data to pixel buffer
 					IOWR(ADDRESS_BASE, 0, address);
 					IOWR(DATA_BASE, 0, pixel);
 				}
-			}
-			*/
+			}*/
+
 
 			for (int i = 0; i < row; i++){
 				for (int j = 0; j < col; j++){
 					// Calculate addresses
-					topLeftAddress = j + i * col;
-					topRightAddress = (j + 160) + i * col;
-					bottomLeftAddress = j + (i + 120) * col;
-					bottomRightAddress = (j + 160) + (i + 120) * col;
+					pixelAddress = j + i*col;
+					topLeftAddress = j + i * totalCol;
+					topRightAddress = (j + 160) + i * totalCol;
+					bottomLeftAddress = j + (i + 120) * totalCol;
+					bottomRightAddress = (j + 160) + (i + 120) * totalCol;
 
 					// Shift data to the right by 4 bits
-					pixel = camBuffer[topLeftAddress]>>4;
+					pixel = camBuffer[pixelAddress]>>4;
 
 					// Write addresses and data to pixel buffer
 					// Top Left image
