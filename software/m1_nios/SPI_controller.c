@@ -86,7 +86,8 @@ void gyro_isr(void * context) {
 int main(void) {
 
 	// Defining variables
-	int col = 400;
+
+	int col = 320;
 	int row = 240;
 	int frameSize = row * col;
 	alt_u8 camMode = 0x0;	// this is the command for the camera mode, where 0x0 is grayscale
