@@ -86,16 +86,22 @@ void gyro_isr(void * context) {
 int main(void) {
 
 	// Defining variables
-	int col = 320;
-	int row = 240;
+	int col = 160;
+	int row = 120;
+	int totalCol = 320;
 	int frameSize = row * col;
-	alt_u8 camMode = 0x0;	// this is the command for the camera mode, where 0x0 is grayscale
+	alt_u8 camMode = 0x12;	// this is the command for the camera mode, where 0x0 is grayscale
 	alt_u8 *camBuffer = (alt_u8 *)malloc(frameSize * sizeof(alt_u8));
 	int deviceSelect = 0;
 	int bufferSize = 1;
 	int flag = 0;
 	int camReady;
 	int address;
+	int pixelAddress;
+	int topLeftAddress;
+	int topRightAddress;
+	int bottomLeftAddress;
+	int bottomRightAddress;
 	int startTime;
 	int endTime;
 	int frameTime;
@@ -162,17 +168,49 @@ int main(void) {
 		camReady = 0;
 		// Writing frame
 		while (camReady == 0){
+
+			/*
 			for (int i = 0; i < row; i++){
 				for (int j = 0; j < col; j++){
 					// Calculate address
-					address = j + i * row;
+					address = j + i * 320;
 					// Shift data to the right by 4 bits
 					pixel = camBuffer[address]>>4;
 					// Write address and data to pixel buffer
 					IOWR(ADDRESS_BASE, 0, address);
 					IOWR(DATA_BASE, 0, pixel);
 				}
+			}*/
+
+
+			for (int i = 0; i < row; i++){
+				for (int j = 0; j < col; j++){
+					// Calculate addresses
+					pixelAddress = j + i*col;
+					topLeftAddress = j + i * totalCol;
+					topRightAddress = (j + 160) + i * totalCol;
+					bottomLeftAddress = j + (i + 120) * totalCol;
+					bottomRightAddress = (j + 160) + (i + 120) * totalCol;
+
+					// Shift data to the right by 4 bits
+					pixel = camBuffer[pixelAddress]>>4;
+
+					// Write addresses and data to pixel buffer
+					// Top Left image
+					IOWR(ADDRESS_BASE, 0, topLeftAddress);
+					IOWR(DATA_BASE, 0, pixel);
+					// Top Right image
+					IOWR(ADDRESS_BASE, 0, topRightAddress);
+					IOWR(DATA_BASE, 0, pixel);
+					// Bottom Left image
+					IOWR(ADDRESS_BASE, 0, bottomLeftAddress);
+					IOWR(DATA_BASE, 0, pixel);
+					// Bottom Right image
+					IOWR(ADDRESS_BASE, 0, bottomRightAddress);
+					IOWR(DATA_BASE, 0, pixel);
+				}
 			}
+
 			// endTime reads the current microsecond count which ends the measurement for the FPS
 			endTime = IORD(USEC_COUNTER_BASE,0);
 			// frameTime is the time taken to send and recieve data
