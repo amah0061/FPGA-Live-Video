@@ -42,8 +42,13 @@ module m1_complete (
 	output [7:0] HEX0,
 	output [7:0] HEX1,
 	output [7:0] HEX2,
-	output [7:0] HEX3
-	
+	output [7:0] HEX3,
+	// gyro
+	output GSENSOR_SCLK,
+	inout GSENSOR_SDI,
+	input GSENSOR_SDO,
+	output GSENSOR_CS_N,
+	input [2:1] GSENSOR_INT
 );
 // Define wires
 wire vga_clk;
@@ -52,6 +57,11 @@ wire [16:0] read_address, write_address;
 wire [31:0] usec_count;
 wire [23:0] hex0;
 wire [23:0] hex3;
+// SPI wires
+wire spi_clk;
+wire spi_miso;
+wire spi_mosi;
+wire [1:0] spi_cs;
 
 // SPI predef pins to high impedance (missing CAM_READY)
 assign GPIO[1:0] = 2'bzz;
@@ -105,6 +115,9 @@ m1_nios_system u0 (
 .camera_export(GPIO[2]),
 .clk_clk(CLOCK_50),
 .data_export(data_raw),
+// Gyro
+.gsensor_int1_export(GSENSOR_INT[1]),
+.gsensor_int2_export(GSENSOR_INT[2]),
 .hex_0_export(hex0),
 .hex_3_export(hex3),
 .key_export(KEY[1:0]),
@@ -121,14 +134,27 @@ m1_nios_system u0 (
 .sdram_ras_n(DRAM_RAS_N),
 .sdram_we_n(DRAM_WE_N),
 //spi stuff
-.spi_MISO(GPIO[7]),       //     spi.MISO -> SPI_SDO
-.spi_MOSI(GPIO[8]),       //        .MOSI -> SPI_SDI
-.spi_SCLK(GPIO[9]),       //        .SCLK -> SPI_SCLK
-.spi_SS_n(GPIO[5]),       //        .SS_n -> SPI_CS_N
+.spi_MISO(spi_miso),       //     spi.MISO -> SPI_SDO
+.spi_MOSI(spi_mosi),       //        .MOSI -> SPI_SDI
+.spi_SCLK(spi_clk),       //        .SCLK -> SPI_SCLK
+.spi_SS_n(spi_cs),       //        .SS_n -> SPI_CS_N
 //micro second counter
 .usec_export(usec_count) 		
 );
 
+// SPI assignments
+// ESP-cam
+assign GPIO[8] = spi_mosi;
+assign GPIO[9] = spi_clk;
+assign GPIO[5] = spi_cs[0];
+// gyro
+assign GSENSOR_SDI = spi_mosi;
+assign GSENSOR_SCLK = spi_clk;
+assign GSENSOR_CS_N = spi_cs[1];
+
+assign spi_miso = (spi_cs[0] == 1'b0) ? GPIO[7] :  
+                  (spi_cs[1] == 1'b0) ? GSENSOR_SDO :
+						1'bz;  
 
 // HEX values 
 assign HEX0 = hex0[7:0];
