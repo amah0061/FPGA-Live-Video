@@ -83,15 +83,36 @@ void gyro_isr(void * context) {
 	doubleTapFlag = 1;
 }
 
+// Image flipping algorithm
+void flip(void *inputImage, void *outputImage, int width, int height) {
+	alt_u8 *in = (alt_u8 *)inputImage;
+	alt_u8 *out = (alt_u8 *)outputImage;
+	for (int i = 0; i < height; i++){
+        for (int j = 0; j < width; j++) {
+            out[j+i*width] = in[(width-1-j)+(height-1-i)*width];
+        }
+    }
+}
+
 int main(void) {
 
 	// Defining variables
+	int singleCol = 320;
+	int singleRow = 240;
 	int col = 160;
 	int row = 120;
 	int totalCol = 320;
-	int frameSize = row * col;
+	int quadFrameSize = row * col;
+	int singleFrameSize = singleCol*singleRow;
 	alt_u8 camMode = 0x12;	// this is the command for the camera mode, where 0x0 is grayscale
-	alt_u8 *camBuffer = (alt_u8 *)malloc(frameSize * sizeof(alt_u8));
+	alt_u8 *singleImage = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
+	alt_u8 *singleImageFlip = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
+	alt_u8 *singleImageBlur = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
+	alt_u8 *singleImageEdge = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImage = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImageFlip = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImageBlur = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImageEdge = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
 	int deviceSelect = 0;
 	int bufferSize = 1;
 	int flag = 0;
@@ -112,6 +133,9 @@ int main(void) {
 	alt_u8 hex3, hex2, hex1, hex0;
 	alt_u32 hexHigh, hexLow;
 	alt_u8 pixel;
+	alt_u8 pixelFlip;
+	alt_u8 pixelBlur;
+	alt_u8 pixelEdge;
 	// Gyro
 	alt_u8 gyro_data_in;
 	alt_u8 gyro_data_out;
@@ -159,8 +183,8 @@ int main(void) {
 			deviceSelect, 			// sub device (slave select)
 			bufferSize, 			// Transmit buffer size (1 bit command)
 			&camMode,	// Setting data capture mode
-			frameSize,  // Size of receive buffer
-			camBuffer,  // Saving camera data to destination buffer
+			quadFrameSize,  // Size of receive buffer
+			quadImage,  // Saving camera data to destination buffer
 			flag		// flags: told to set to 0
 		);
 
@@ -181,7 +205,15 @@ int main(void) {
 					IOWR(DATA_BASE, 0, pixel);
 				}
 			}*/
+			// Shift each pixel 4 bits to the right to get rid of junk
+			for (int i = 0; i < row; i++){
+				for (int j = 0; j < col; j++){
+					quadImage[j+i*col] = quadImage[j+i*col]>>4;
+				}
+			}
 
+			// Call image flip function
+			flip(quadImage, quadImageFlip, col, row);
 
 			for (int i = 0; i < row; i++){
 				for (int j = 0; j < col; j++){
@@ -193,7 +225,8 @@ int main(void) {
 					bottomRightAddress = (j + 160) + (i + 120) * totalCol;
 
 					// Shift data to the right by 4 bits
-					pixel = camBuffer[pixelAddress]>>4;
+					pixel = quadImage[pixelAddress];
+					pixelFlip = quadImageFlip[pixelAddress];
 
 					// Write addresses and data to pixel buffer
 					// Top Left image
@@ -201,7 +234,7 @@ int main(void) {
 					IOWR(DATA_BASE, 0, pixel);
 					// Top Right image
 					IOWR(ADDRESS_BASE, 0, topRightAddress);
-					IOWR(DATA_BASE, 0, pixel);
+					IOWR(DATA_BASE, 0, pixelFlip);
 					// Bottom Left image
 					IOWR(ADDRESS_BASE, 0, bottomLeftAddress);
 					IOWR(DATA_BASE, 0, pixel);
