@@ -19,6 +19,7 @@
 #include "../m1_nios_bsp/drivers/inc/altera_avalon_pio_regs.h"
 #include "../m1_nios_bsp/drivers/inc/altera_avalon_spi.h"
 #include "../m1_nios_bsp/drivers/inc/altera_avalon_spi_regs.h"
+#include "stdlib.h"
 
 // Gyro write Registers
 #define    BW_RATE        0x2c
@@ -127,6 +128,7 @@ void convolve(void *inputImage, void *outputImage, void *kernel, int width, int 
 
 
 
+
 int main(void) {
 
 	// Defining variables
@@ -145,7 +147,8 @@ int main(void) {
 	alt_u8 *quadImage = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
 	alt_u8 *quadImageFlip = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
 	alt_u8 *quadImageBlur = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageEdge = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImageEdgeX = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImageEdgeY = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
 	int deviceSelect = 0;
 	int bufferSize = 1;
 	int flag = 0;
@@ -170,6 +173,10 @@ int main(void) {
 	alt_u8 pixelBlur;
 	alt_u8 pixelEdge;
 	float kernelBlur[9] = {0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11};
+	float kernelEdgeX[9] = {1, 0, -1, 2, 0, -2, 1, 0, -1};
+	float kernelEdgeY[9] = {1, 2, 1, 0, 0, 0, -1, -2, -1};
+	int thresholdValue = 100;
+
 	// Gyro
 	alt_u8 gyro_data_in;
 	alt_u8 gyro_data_out;
@@ -229,6 +236,28 @@ int main(void) {
 			}
 		}
 
+		// Call image flip function
+		flip(quadImage, quadImageFlip, col, row);
+
+		// Call image convolution for blur
+		convolve(quadImage, quadImageBlur, kernelBlur, col, row);
+
+		// Call image edge detection function
+		convolve(quadImage, quadImageEdgeX, kernelEdgeX, col, row);
+		convolve(quadImage, quadImageEdgeY, kernelEdgeY, col, row);
+
+		// Combine X and Y Sobel filters and checking threshold
+		for (int i = 1; i < row - 1; i++){
+			for (int j = 1; j < col - 1; j++){
+				quadImageEdgeX[j+i*col] = abs(quadImageEdgeX[j+i*col]) + abs(quadImageEdgeY[j+i*col]);
+
+				if (quadImageEdgeX[j+i*col] < thresholdValue){
+					quadImageEdgeX[j+i*col] = 0;
+				}
+			}
+		}
+
+
 		// Reset camera to be in a state to not except data
 		camReady = 0;
 		// Writing frame
@@ -248,11 +277,6 @@ int main(void) {
 			}*/
 
 
-			// Call image flip function
-			flip(quadImage, quadImageFlip, col, row);
-
-			// Call image convolution for blur
-			convolve(quadImage, quadImageBlur, kernelBlur, col, row);
 
 			for (int i = 0; i < row; i++){
 				for (int j = 0; j < col; j++){
@@ -263,13 +287,22 @@ int main(void) {
 					bottomLeftAddress = j + (i + 120) * totalCol;
 					bottomRightAddress = (j + 160) + (i + 120) * totalCol;
 
-					// Shift data to the right by 4 bits
+					// Assign each pixel depending on what image
 					pixel = quadImage[pixelAddress];
 					pixelFlip = quadImageFlip[pixelAddress];
-					if (i == 0 || i == row-1 || j ==0 || j == col - -1){
+
+					// Assign 0 to the border of blurred image
+					if (i == 0 || i == row-1 || j ==0 || j == col-1){
 						pixelBlur = 0;
 					} else {
 						pixelBlur = quadImageBlur[pixelAddress];
+					}
+
+					// Assign 0 to the border of edge detection image
+					if (i == 0 || i == row-1 || j ==0 || j == col-1){
+						pixelEdge = 0;
+					} else {
+						pixelEdge = quadImageEdgeX[pixelAddress];
 					}
 
 					// Write addresses and data to pixel buffer
@@ -284,7 +317,7 @@ int main(void) {
 					IOWR(DATA_BASE, 0, pixelBlur);
 					// Bottom Right image
 					IOWR(ADDRESS_BASE, 0, bottomRightAddress);
-					IOWR(DATA_BASE, 0, pixel);
+					IOWR(DATA_BASE, 0, pixelEdge);
 				}
 			}
 
