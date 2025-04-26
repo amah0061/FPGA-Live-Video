@@ -134,7 +134,7 @@ int main(void) {
 	// Defining variables
 	int singleCol = 320;
 	int singleRow = 240;
-	int col = 1600;
+	int col = 160;
 	int row = 120;
 	int totalCol = 320;
 	int quadFrameSize = row * col;
