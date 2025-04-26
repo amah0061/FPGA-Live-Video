@@ -100,8 +100,8 @@ void convolve(void *inputImage, void *outputImage, void *kernel, int width, int 
 	// Defining variables
 	alt_u8 *in = (alt_u8 *)inputImage;
 	alt_u8 *out = (alt_u8 *)outputImage;
-	alt_u8 runningValue;
-	alt_u8 *k = (alt_u8 *)kernel;
+	float runningValue;
+	float *k = (float *)kernel;
 
     for (int i = 1; i < height - 1; i++){
         for (int j = 1; j < width - 1; j++){
@@ -266,7 +266,11 @@ int main(void) {
 					// Shift data to the right by 4 bits
 					pixel = quadImage[pixelAddress];
 					pixelFlip = quadImageFlip[pixelAddress];
-					pixelBlur = quadImageBlur[pixelAddress];
+					if (i == 0 || i == row-1 || j ==0 || j == col - -1){
+						pixelBlur = 0;
+					} else {
+						pixelBlur = quadImageBlur[pixelAddress];
+					}
 
 					// Write addresses and data to pixel buffer
 					// Top Left image
