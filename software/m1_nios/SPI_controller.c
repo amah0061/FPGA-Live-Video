@@ -132,9 +132,9 @@ void convolve(void *inputImage, void *outputImage, void *kernel, int width, int 
 int main(void) {
 
 	// Defining variables
-	int singleCol = 3200;
+	int singleCol = 320;
 	int singleRow = 240;
-	int col = 160;
+	int col = 1600;
 	int row = 120;
 	int totalCol = 320;
 	int quadFrameSize = row * col;
