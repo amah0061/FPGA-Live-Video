@@ -85,6 +85,7 @@ void gyro_isr(void * context) {
 
 // Image flipping algorithm
 void flip(void *inputImage, void *outputImage, int width, int height) {
+	// Defining variables
 	alt_u8 *in = (alt_u8 *)inputImage;
 	alt_u8 *out = (alt_u8 *)outputImage;
 	for (int i = 0; i < height; i++){
@@ -93,6 +94,38 @@ void flip(void *inputImage, void *outputImage, int width, int height) {
         }
     }
 }
+
+// Convolution function
+void convolve(void *inputImage, void *outputImage, void *kernel, int width, int height) {
+	// Defining variables
+	alt_u8 *in = (alt_u8 *)inputImage;
+	alt_u8 *out = (alt_u8 *)outputImage;
+	alt_u8 runningValue;
+	alt_u8 *k = (alt_u8 *)kernel;
+
+    for (int i = 1; i < height - 1; i++){
+        for (int j = 1; j < width - 1; j++){
+        	runningValue = 0;
+
+        	// Update running value for each of 9 pixels, starting at top left
+        	runningValue = runningValue + in[j+(i-1)*width-1]*k[0];
+        	runningValue = runningValue + in[j+(i-1)*width]*k[1];
+        	runningValue = runningValue + in[j+(i-1)*width+1]*k[2];
+        	runningValue = runningValue + in[j+(i)*width-1]*k[3];
+        	runningValue = runningValue + in[j+(i)*width]*k[4];
+        	runningValue = runningValue + in[j+(i)*width+1]*k[5];
+        	runningValue = runningValue + in[j+(i+1)*width-1]*k[6];
+        	runningValue = runningValue + in[j+(i+1)*width]*k[7];
+        	runningValue = runningValue + in[j+(i+1)*width+1]*k[8];
+
+        	// Assigning value to current pixel
+        	out[j+i*width] = runningValue;
+        }
+    }
+}
+
+
+
 
 int main(void) {
 
@@ -136,6 +169,7 @@ int main(void) {
 	alt_u8 pixelFlip;
 	alt_u8 pixelBlur;
 	alt_u8 pixelEdge;
+	float kernelBlur[9] = {0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11};
 	// Gyro
 	alt_u8 gyro_data_in;
 	alt_u8 gyro_data_out;
@@ -188,6 +222,13 @@ int main(void) {
 			flag		// flags: told to set to 0
 		);
 
+		// Shift each pixel 4 bits to the right to get rid of junk
+		for (int i = 0; i < row; i++){
+			for (int j = 0; j < col; j++){
+				quadImage[j+i*col] = quadImage[j+i*col]>>4;
+			}
+		}
+
 		// Reset camera to be in a state to not except data
 		camReady = 0;
 		// Writing frame
@@ -205,15 +246,13 @@ int main(void) {
 					IOWR(DATA_BASE, 0, pixel);
 				}
 			}*/
-			// Shift each pixel 4 bits to the right to get rid of junk
-			for (int i = 0; i < row; i++){
-				for (int j = 0; j < col; j++){
-					quadImage[j+i*col] = quadImage[j+i*col]>>4;
-				}
-			}
+
 
 			// Call image flip function
 			flip(quadImage, quadImageFlip, col, row);
+
+			// Call image convolution for blur
+			convolve(quadImage, quadImageBlur, kernelBlur, col, row);
 
 			for (int i = 0; i < row; i++){
 				for (int j = 0; j < col; j++){
@@ -227,6 +266,7 @@ int main(void) {
 					// Shift data to the right by 4 bits
 					pixel = quadImage[pixelAddress];
 					pixelFlip = quadImageFlip[pixelAddress];
+					pixelBlur = quadImageBlur[pixelAddress];
 
 					// Write addresses and data to pixel buffer
 					// Top Left image
@@ -237,7 +277,7 @@ int main(void) {
 					IOWR(DATA_BASE, 0, pixelFlip);
 					// Bottom Left image
 					IOWR(ADDRESS_BASE, 0, bottomLeftAddress);
-					IOWR(DATA_BASE, 0, pixel);
+					IOWR(DATA_BASE, 0, pixelBlur);
 					// Bottom Right image
 					IOWR(ADDRESS_BASE, 0, bottomRightAddress);
 					IOWR(DATA_BASE, 0, pixel);
