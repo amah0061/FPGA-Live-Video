@@ -19,6 +19,7 @@
 #include "../m1_nios_bsp/drivers/inc/altera_avalon_pio_regs.h"
 #include "../m1_nios_bsp/drivers/inc/altera_avalon_spi.h"
 #include "../m1_nios_bsp/drivers/inc/altera_avalon_spi_regs.h"
+#include "stdlib.h"
 
 // Gyro write Registers
 #define    BW_RATE        0x2c
@@ -130,30 +131,95 @@ void switch_isr () {
 	IOWR(SW_BASE, 3, 0);
 }
 
+// Image flipping algorithm
+void flip(void *inputImage, void *outputImage, int width, int height) {
+	// Defining variables
+	alt_u8 *in = (alt_u8 *)inputImage;
+	alt_u8 *out = (alt_u8 *)outputImage;
+	for (int i = 0; i < height; i++){
+        for (int j = 0; j < width; j++) {
+            out[j+i*width] = in[(width-1-j)+(height-1-i)*width];
+        }
+    }
+}
+
+// Convolution function
+void convolve(void *inputImage, void *outputImage, void *kernel, int width, int height) {
+	// Defining variables
+	alt_u8 *in = (alt_u8 *)inputImage;
+	alt_u8 *out = (alt_u8 *)outputImage;
+	float runningValue;
+	float *k = (float *)kernel;
+
+    for (int i = 1; i < height - 1; i++){
+        for (int j = 1; j < width - 1; j++){
+        	runningValue = 0;
+
+        	// Update running value for each of 9 pixels, starting at top left
+        	runningValue = runningValue + in[j+(i-1)*width-1]*k[0];
+        	runningValue = runningValue + in[j+(i-1)*width]*k[1];
+        	runningValue = runningValue + in[j+(i-1)*width+1]*k[2];
+        	runningValue = runningValue + in[j+(i)*width-1]*k[3];
+        	runningValue = runningValue + in[j+(i)*width]*k[4];
+        	runningValue = runningValue + in[j+(i)*width+1]*k[5];
+        	runningValue = runningValue + in[j+(i+1)*width-1]*k[6];
+        	runningValue = runningValue + in[j+(i+1)*width]*k[7];
+        	runningValue = runningValue + in[j+(i+1)*width+1]*k[8];
+
+        	// Assigning value to current pixel
+        	out[j+i*width] = runningValue;
+        }
+    }
+}
 
 int main(void) {
 
 	// Defining variables
-	int col = 320;
-	int row = 240;
-	int frameSize = row * col;
-	alt_u8 camMode = 0x0;	// this is the command for the camera mode, where 0x0 is grayscale
-	alt_u8 *camBuffer = (alt_u8 *)malloc(frameSize * sizeof(alt_u8));
+	int singleCol = 320;
+	int singleRow = 240;
+	int col = 160;
+	int row = 120;
+	int totalCol = 320;
+	int quadFrameSize = row * col;
+	int singleFrameSize = singleCol*singleRow;
+	alt_u8 camMode = 0x12;	// this is the command for the camera mode, where 0x0 is grayscale
+	alt_u8 *singleImage = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
+	alt_u8 *singleImageFlip = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
+	alt_u8 *singleImageBlur = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
+	alt_u8 *singleImageEdge = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImage = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImageFlip = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImageBlur = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImageEdgeX = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImageEdgeY = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
 	int deviceSelect = 0;
 	int bufferSize = 1;
 	int flag = 0;
 	int camReady;
 	int address;
+	int pixelAddress;
+	int topLeftAddress;
+	int topRightAddress;
+	int bottomLeftAddress;
+	int bottomRightAddress;
 	int startTime;
 	int endTime;
 	int frameTime;
-	float timeConversion = 1000000.0;
+	float timeConversion = 1000000.00;
 	float frameRate;
 	int rateInt;
 	int d0, d1, d2, d3;
 	alt_u8 hex3, hex2, hex1, hex0;
 	alt_u32 hexHigh, hexLow;
 	alt_u8 pixel;
+	alt_u8 pixelFlip;
+	alt_u8 pixelBlur;
+	alt_u8 pixelEdge;
+	float kernelBlur[9] = {0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11};
+	float kernelEdgeX[9] = {1, 0, -1, 2, 0, -2, 1, 0, -1};
+	float kernelEdgeY[9] = {1, 2, 1, 0, 0, 0, -1, -2, -1};
+	int thresholdValue = 100;
+
 	// Gyro
 	alt_u8 gyro_data_in;
 	alt_u8 gyro_data_out;
@@ -212,26 +278,103 @@ int main(void) {
 			deviceSelect, 			// sub device (slave select)
 			bufferSize, 			// Transmit buffer size (1 bit command)
 			&camMode,	// Setting data capture mode
-			frameSize,  // Size of receive buffer
-			camBuffer,  // Saving camera data to destination buffer
+			quadFrameSize,  // Size of receive buffer
+			quadImage,  // Saving camera data to destination buffer
 			flag		// flags: told to set to 0
 		);
+
+		// Shift each pixel 4 bits to the right to get rid of junk
+		for (int i = 0; i < row; i++){
+			for (int j = 0; j < col; j++){
+				quadImage[j+i*col] = quadImage[j+i*col]>>4;
+			}
+		}
+
+		// Call image flip function
+		flip(quadImage, quadImageFlip, col, row);
+
+		// Call image convolution for blur
+		convolve(quadImage, quadImageBlur, kernelBlur, col, row);
+
+		// Call image edge detection function
+		convolve(quadImage, quadImageEdgeX, kernelEdgeX, col, row);
+		convolve(quadImage, quadImageEdgeY, kernelEdgeY, col, row);
+
+		// Combine X and Y Sobel filters and checking threshold
+		for (int i = 1; i < row - 1; i++){
+			for (int j = 1; j < col - 1; j++){
+				quadImageEdgeX[j+i*col] = abs(quadImageEdgeX[j+i*col]) + abs(quadImageEdgeY[j+i*col]);
+
+				if (quadImageEdgeX[j+i*col] < thresholdValue){
+					quadImageEdgeX[j+i*col] = 0;
+				}
+			}
+		}
+
 
 		// Reset camera to be in a state to not except data
 		camReady = 0;
 		// Writing frame
 		while (camReady == 0){
+
+			/*
 			for (int i = 0; i < row; i++){
 				for (int j = 0; j < col; j++){
 					// Calculate address
-					address = j + i * row;
+					address = j + i * 320;
 					// Shift data to the right by 4 bits
 					pixel = camBuffer[address]>>4;
 					// Write address and data to pixel buffer
 					IOWR(ADDRESS_BASE, 0, address);
 					IOWR(DATA_BASE, 0, pixel);
 				}
+			}*/
+
+
+
+			for (int i = 0; i < row; i++){
+				for (int j = 0; j < col; j++){
+					// Calculate addresses
+					pixelAddress = j + i*col;
+					topLeftAddress = j + i * totalCol;
+					topRightAddress = (j + 160) + i * totalCol;
+					bottomLeftAddress = j + (i + 120) * totalCol;
+					bottomRightAddress = (j + 160) + (i + 120) * totalCol;
+
+					// Assign each pixel depending on what image
+					pixel = quadImage[pixelAddress];
+					pixelFlip = quadImageFlip[pixelAddress];
+
+					// Assign 0 to the border of blurred image
+					if (i == 0 || i == row-1 || j ==0 || j == col-1){
+						pixelBlur = 0;
+					} else {
+						pixelBlur = quadImageBlur[pixelAddress];
+					}
+
+					// Assign 0 to the border of edge detection image
+					if (i == 0 || i == row-1 || j ==0 || j == col-1){
+						pixelEdge = 0;
+					} else {
+						pixelEdge = quadImageEdgeX[pixelAddress];
+					}
+
+					// Write addresses and data to pixel buffer
+					// Top Left image
+					IOWR(ADDRESS_BASE, 0, topLeftAddress);
+					IOWR(DATA_BASE, 0, pixel);
+					// Top Right image
+					IOWR(ADDRESS_BASE, 0, topRightAddress);
+					IOWR(DATA_BASE, 0, pixelFlip);
+					// Bottom Left image
+					IOWR(ADDRESS_BASE, 0, bottomLeftAddress);
+					IOWR(DATA_BASE, 0, pixelBlur);
+					// Bottom Right image
+					IOWR(ADDRESS_BASE, 0, bottomRightAddress);
+					IOWR(DATA_BASE, 0, pixelEdge);
+				}
 			}
+
 			// endTime reads the current microsecond count which ends the measurement for the FPS
 			endTime = IORD(USEC_COUNTER_BASE,0);
 			// frameTime is the time taken to send and recieve data
