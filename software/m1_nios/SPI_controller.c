@@ -168,7 +168,7 @@ int main(void) {
 	alt_u8 *quadImageTopRight = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
 	alt_u8 *quadImageBottomLeft = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
 	alt_u8 *quadImageBottomRight = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	int deviceSelect = 0;
+	int deviceSelect = 1;
 	int bufferSize = 1;
 	int flag = 0;
 	int camReady;
