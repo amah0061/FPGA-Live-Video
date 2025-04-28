@@ -263,11 +263,13 @@ int main(void) {
 			);
 
 			// Shift each pixel 4 bits to the right to get rid of junk
-			for (int i = 0; i < row; i++){
-				for (int j = 0; j < col; j++){
-					singleImage[j+i*col] = singleImage[j+i*col]>>4;
+			for (int i = 0; i < singleRow; i++){
+				for (int j = 0; j < singleCol; j++){
+					singleImage[j+i*singleCol] = singleImage[j+i*singleCol]>>4;
 				}
 			}
+
+
 
 
 		} else if (keyFlag == 1) { 	// Receiving the frame (Quad)
@@ -329,12 +331,12 @@ int main(void) {
 
 
 				// writing Single image to pixel buffer
-				for (int i = 0; i < row; i++){
-					for (int j = 0; j < col; j++){
+				for (int i = 0; i < singleRow; i++){
+					for (int j = 0; j < singleCol; j++){
 						// Calculate address
 						address = j + i * totalCol;
 						// Shift data to the right by 4 bits
-						pixel = singleImage[address];
+						pixel = singleImageAlteration1[address];
 						// Write address and data to pixel buffer
 						IOWR(ADDRESS_BASE, 0, address);
 						IOWR(DATA_BASE, 0, pixel);
