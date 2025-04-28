@@ -1,4 +1,4 @@
-/* This file generates the controller for SPI bus, which allows data to be sent and recieved through
+/* This file generates the controller for SPI bus, which allows data to be sent and received through
  * the corresponding hardware and peripherals. The file also contains the calculations to generate
  * the frames per second (FPS) of the system.
  */
@@ -12,11 +12,6 @@
 // Created Date: 29/03/2025
 // version ='1.0'
 
-/*
- * TO DO
- * 1. implement key switching for quad to single
- * 2. single image input swapping between modes
- * */
 #include "../m1_nios_bsp/system.h"
 #include "../m1_nios_bsp/HAL/inc/io.h"
 #include "../m1_nios_bsp/HAL/inc/alt_types.h"
@@ -345,21 +340,21 @@ int main(void) {
 
 				}
 			} else if (keyFlag == 1) {
-				// Select the current image alteration based on rotation
-
+				// Read y position of DE-10
 				alt_avalon_spi_command(SPI_0_BASE, 1, 1, &readY, 2, &yData, 0x0);
 
-				if (-20 <= yData <= 20) {
-					selectedAlteration = 1;
-				} else if (-90 <= yData < -20) {
-					selectedAlteration = 2;
-				} else if (20 < yData <= 60) {
-					selectedAlteration = 3;
-				} else if (60 < yData <= 90) {
-					selectedAlteration = 4;
+				// Select alteration based on y position
+				if (yData >= -20 && yData <= 20) {
+				    selectedAlteration = 1;
+				} else if (yData >= -90 && yData < -20) {
+				    selectedAlteration = 2;
+				} else if (yData > 20 && yData <= 60) {
+				    selectedAlteration = 3;
+				} else if (yData > 60 && yData <= 90) {
+				    selectedAlteration = 4;
 				}
 
-				// Update quadrant image types depending on switch status
+				// Update quadrant flag to display relevant image
 				if (swFlag & (1 << 0)) { // SW0 - Top Left
 					topLeftFlag = selectedAlteration;
 				}
@@ -372,19 +367,25 @@ int main(void) {
 				if (swFlag & (1 << 3)) { // SW3 - Bottom Right
 					bottomRightFlag = selectedAlteration;
 				}
+				// Reset flag
+				swFlag = 0;
 
+				// Call original image if needed
 				if (topLeftFlag == 1 || topRightFlag == 1 || bottomLeftFlag == 1 || bottomRightFlag == 1) {
 					quadImageAlteration1 = quadImageOrigin;
 				}
 
+				// Call edge alteration if needed
 				if (topLeftFlag == 2 || topRightFlag == 2 || bottomLeftFlag == 2 || bottomRightFlag == 2) {
 					flip(quadImageOrigin, quadImageAlteration2, col, row);
 				}
 
+				// Call image blur if needed
 				if (topLeftFlag == 3 || topRightFlag == 3 || bottomLeftFlag == 3 || bottomRightFlag == 3) {
 					convolve(quadImageOrigin, quadImageAlteration3, kernelBlur, col, row);
 				}
 
+				// Call edge detection if needed
 				if (topLeftFlag == 4 || topRightFlag == 4 || bottomLeftFlag == 4 || bottomRightFlag == 4) {
 					convolve(quadImageOrigin, quadImageAlteration4, kernelEdgeX, col, row);
 					convolve(quadImageOrigin, quadImageAlteration5, kernelEdgeY, col, row);
@@ -400,6 +401,7 @@ int main(void) {
 					}
 				}
 
+				// Store relevant image in top left quadrant
 				if (topLeftFlag == 1) {
 					quadImageTopLeft = quadImageAlteration1;
 				} else if (topLeftFlag == 2) {
@@ -410,6 +412,7 @@ int main(void) {
 					quadImageTopLeft = quadImageAlteration4;
 				}
 
+				// Store relevant image in top right quadrant
 				if (topRightFlag == 1) {
 					quadImageTopRight = quadImageAlteration1;
 				} else if (topRightFlag == 2) {
@@ -420,6 +423,7 @@ int main(void) {
 					quadImageTopRight = quadImageAlteration4;
 				}
 
+				// Store relevant image in bottom left quadrant
 				if (bottomLeftFlag == 1) {
 					quadImageBottomLeft = quadImageAlteration1;
 				} else if (bottomLeftFlag == 2) {
@@ -430,6 +434,7 @@ int main(void) {
 					quadImageBottomLeft = quadImageAlteration4;
 				}
 
+				// Store relevant image in bottom right quadrant
 				if (bottomRightFlag == 1) {
 					quadImageBottomRight = quadImageAlteration1;
 				} else if (bottomRightFlag == 2) {
@@ -502,14 +507,6 @@ int main(void) {
 			IOWR(HEX_3_BASE, 0, hexHigh);
 			IOWR(HEX_0_BASE, 0, hexLow);
 
-			// Gyro stuff
-			if (doubleTapFlag == 0){
-				// read axis data
-				alt_avalon_spi_command(SPI_0_BASE, 1, 1, &readX, 2, &xData, 0x0);
-				alt_avalon_spi_command(SPI_0_BASE, 1, 1, &readY, 2, &yData, 0x0);
-				alt_avalon_spi_command(SPI_0_BASE, 1, 1, &readZ, 2, &zData, 0x0);
-				printf("X axis: %4d\t Y axis: %4d\t Z axis %4d\n", xData, yData, zData);
-			}
 			gyro_data_in = INT_SOURCE | 0x80;
 			// read interrupt source
 			alt_avalon_spi_command(SPI_0_BASE, 1, 1, &gyro_data_in, 1, &regData, 0x0);
