@@ -136,7 +136,7 @@ int main(void) {
 	int singleRow = 240;
 	int col = 160;
 	int row = 120;
-	int totalCol = 320;
+	int totalCol = 321;
 	int quadFrameSize = row * col;
 	int singleFrameSize = singleCol*singleRow;
 	alt_u8 camMode = 0x12;	// this is the command for the camera mode, where 0x0 is grayscale
