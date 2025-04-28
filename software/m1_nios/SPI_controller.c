@@ -170,7 +170,7 @@ int main(void) {
 	int topRightFlag = 1;
 	int bottomLeftFlag = 1;
 	int bottomRightFlag = 1;
-	int deviceSelect = 2;
+	int deviceSelect = 0;
 	int selectedAlteration;
 	int bufferSize = 1;
 	int flag = 0;
