@@ -156,8 +156,9 @@ int main(void) {
 	int quadFrameSize = row * col;
 	int singleFrameSize = singleCol*singleRow;
 	alt_u8 camModeQuad = 0x12;
-	alt_u8 camModeSingle = 0x01;
+	alt_u8 camModeSingle = 0x10;
 	alt_u8 *singleImage = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
+	alt_u8 *singleImageDisplay = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
 	alt_u8 *singleImageAlteration1 = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
 	alt_u8 *singleImageAlteration2 = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
 	alt_u8 *quadImageOrigin = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
@@ -270,33 +271,7 @@ int main(void) {
 				}
 			}
 
-			// image alterations
-			if (doubleTapFlag == 0) {			//Default image
-				singleImageAlteration1 = singleImage;
 
-			} else if (doubleTapFlag == 1) {	// Flipped image
-				flip(singleImage, singleImageAlteration1, singleCol, singleRow);
-
-
-			} else if (doubleTapFlag == 2) {	//Blurred image
-				convolve(singleImage, singleImageAlteration1, kernelBlur, singleCol, singleRow);;
-
-			} else if (doubleTapFlag == 3) {	//Edge Detection image
-				convolve(singleImage, singleImageAlteration1, kernelEdgeX, singleCol, singleRow);
-				convolve(singleImage, singleImageAlteration2, kernelEdgeY, singleCol, singleRow);
-
-				// Combine X and Y Sobel filters and checking threshold
-				for (int i = 1; i < singleRow - 1; i++){
-					for (int j = 1; j < singleCol - 1; j++){
-						singleImageAlteration1[j+i*singleCol] = abs(singleImageAlteration1[j+i*singleCol]) + abs(singleImageAlteration2[j+i*singleCol]);
-
-						if (singleImageAlteration1[j+i*singleCol] < thresholdValue){
-							singleImageAlteration1[j+i*singleCol] = 0;
-						}
-					}
-				}
-
-			}
 
 
 
@@ -355,13 +330,45 @@ int main(void) {
 
 		// Writing frame to pixel bugger
 		while (camReady == 0){
+			// image alterations
+			if (doubleTapFlag == 0) {			//Default image
+				singleImageDisplay = singleImage;
+
+			} else if (doubleTapFlag == 1) {	// Flipped image
+				flip(singleImage, *singleImageAlteration1, singleCol, singleRow);
+				singleImageDisplay = singleImageAlteration1;
+
+			} else if (doubleTapFlag == 2) {	//Blurred image
+				convolve(singleImage, singleImageAlteration1, kernelBlur, singleCol, singleRow);;
+				singleImageDisplay = singleImageAlteration1;
+
+			} else if (doubleTapFlag == 3) {	//Edge Detection image
+				convolve(singleImage, singleImageAlteration1, kernelEdgeX, singleCol, singleRow);
+				convolve(singleImage, singleImageAlteration2, kernelEdgeY, singleCol, singleRow);
+
+				// Combine X and Y Sobel filters and checking threshold
+				for (int i = 1; i < singleRow - 1; i++){
+					for (int j = 1; j < singleCol - 1; j++){
+						singleImageAlteration1[j+i*singleCol] = abs(singleImageAlteration1[j+i*singleCol]) + abs(singleImageAlteration2[j+i*singleCol]);
+
+						if (singleImageAlteration1[j+i*singleCol] < thresholdValue){
+							singleImageAlteration1[j+i*singleCol] = 0;
+						}
+					}
+				}
+				singleImageDisplay = singleImageAlteration1;
+			}
+
+
+
+
 			if (keyFlag == 0) {
 				// writing Single image to pixel buffer
 				for (int i = 0; i < singleRow; i++){
 					for (int j = 0; j < singleCol; j++){
 						// Calculate address
 						address = j + i * totalCol;
-						pixel = singleImageAlteration1[address];
+						pixel = singleImageDisplay[address];
 						// Write address and data to pixel buffer
 						IOWR(ADDRESS_BASE, 0, address);
 						IOWR(DATA_BASE, 0, pixel);
