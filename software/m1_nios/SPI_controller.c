@@ -270,12 +270,34 @@ int main(void) {
 					singleImage[j+i*singleCol] = singleImage[j+i*singleCol]>>4;
 				}
 			}
+			// image alterations
+			if (doubleTapFlag == 0) {			//Default image
+				singleImageDisplay = singleImage;
 
+			} else if (doubleTapFlag == 1) {	// Flipped image
+				flip(singleImage, singleImageAlteration1, singleCol, singleRow);
+				singleImageDisplay = singleImageAlteration1;
 
+			} else if (doubleTapFlag == 2) {	//Blurred image
+				convolve(singleImage, singleImageAlteration1, kernelBlur, singleCol, singleRow);;
+				singleImageDisplay = singleImageAlteration1;
 
+			} else if (doubleTapFlag == 3) {	//Edge Detection image
+				convolve(singleImage, singleImageAlteration1, kernelEdgeX, singleCol, singleRow);
+				convolve(singleImage, singleImageAlteration2, kernelEdgeY, singleCol, singleRow);
 
+				// Combine X and Y Sobel filters and checking threshold
+				for (int i = 1; i < singleRow - 1; i++){
+					for (int j = 1; j < singleCol - 1; j++){
+						singleImageAlteration1[j+i*singleCol] = abs(singleImageAlteration1[j+i*singleCol]) + abs(singleImageAlteration2[j+i*singleCol]);
 
-
+						if (singleImageAlteration1[j+i*singleCol] < thresholdValue){
+							singleImageAlteration1[j+i*singleCol] = 0;
+						}
+					}
+				}
+				singleImageDisplay = singleImageAlteration1;
+			}
 		} else if (keyFlag == 1) { 	// Receiving the frame (Quad)
 			alt_avalon_spi_command(
 				SPI_0_BASE, 		// SPI base
@@ -330,38 +352,6 @@ int main(void) {
 
 		// Writing frame to pixel bugger
 		while (camReady == 0){
-			// image alterations
-			if (doubleTapFlag == 0) {			//Default image
-				singleImageDisplay = singleImage;
-
-			} else if (doubleTapFlag == 1) {	// Flipped image
-				flip(singleImage, *singleImageAlteration1, singleCol, singleRow);
-				singleImageDisplay = singleImageAlteration1;
-
-			} else if (doubleTapFlag == 2) {	//Blurred image
-				convolve(singleImage, singleImageAlteration1, kernelBlur, singleCol, singleRow);;
-				singleImageDisplay = singleImageAlteration1;
-
-			} else if (doubleTapFlag == 3) {	//Edge Detection image
-				convolve(singleImage, singleImageAlteration1, kernelEdgeX, singleCol, singleRow);
-				convolve(singleImage, singleImageAlteration2, kernelEdgeY, singleCol, singleRow);
-
-				// Combine X and Y Sobel filters and checking threshold
-				for (int i = 1; i < singleRow - 1; i++){
-					for (int j = 1; j < singleCol - 1; j++){
-						singleImageAlteration1[j+i*singleCol] = abs(singleImageAlteration1[j+i*singleCol]) + abs(singleImageAlteration2[j+i*singleCol]);
-
-						if (singleImageAlteration1[j+i*singleCol] < thresholdValue){
-							singleImageAlteration1[j+i*singleCol] = 0;
-						}
-					}
-				}
-				singleImageDisplay = singleImageAlteration1;
-			}
-
-
-
-
 			if (keyFlag == 0) {
 				// writing Single image to pixel buffer
 				for (int i = 0; i < singleRow; i++){
