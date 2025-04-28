@@ -156,7 +156,7 @@ int main(void) {
 	int quadFrameSize = row * col;
 	int singleFrameSize = singleCol*singleRow;
 	alt_u8 camModeQuad = 0x12;
-	alt_u8 camModeSingle = 0x10;
+	alt_u8 camModeSingle = 0x11;
 	alt_u8 *singleImage = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
 	alt_u8 *singleImageDisplay = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
 	alt_u8 *singleImageAlteration1 = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
