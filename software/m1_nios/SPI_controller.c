@@ -111,13 +111,44 @@ void flip(void *inputImage, void *outputImage, int width, int height) {
     }
 }
 
-// Convolution function
+// Blur function
+void blur(void *inputImage, void *outputImage, void *kernel, int width, int height) {
+	// Defining variables
+	alt_u8 *in = (alt_u8 *)inputImage;
+	alt_u8 *out = (alt_u8 *)outputImage;
+	int runningValue;
+	int *k = (int *)kernel;
+
+    for (int i = 1; i < height - 1; i++){
+        for (int j = 1; j < width - 1; j++){
+        	runningValue = 0;
+
+        	// Update running value for each of 9 pixels, starting at top left
+        	runningValue = runningValue + in[j+(i-1)*width-1]*k[0];
+        	runningValue = runningValue + in[j+(i-1)*width]*k[1];
+        	runningValue = runningValue + in[j+(i-1)*width+1]*k[2];
+        	runningValue = runningValue + in[j+(i)*width-1]*k[3];
+        	runningValue = runningValue + in[j+(i)*width]*k[4];
+        	runningValue = runningValue + in[j+(i)*width+1]*k[5];
+        	runningValue = runningValue + in[j+(i+1)*width-1]*k[6];
+        	runningValue = runningValue + in[j+(i+1)*width]*k[7];
+        	runningValue = runningValue + in[j+(i+1)*width+1]*k[8];
+
+        	// Average the running value
+        	runningValue = runningValue/9;
+
+        	// Assigning value to current pixel
+        	out[j+i*width] = runningValue;
+        }
+    }
+}
+
 void convolve(void *inputImage, void *outputImage, void *kernel, int width, int height) {
 	// Defining variables
 	alt_u8 *in = (alt_u8 *)inputImage;
 	alt_u8 *out = (alt_u8 *)outputImage;
-	float runningValue;
-	float *k = (float *)kernel;
+	int runningValue;
+	int *k = (int *)kernel;
 
     for (int i = 1; i < height - 1; i++){
         for (int j = 1; j < width - 1; j++){
@@ -195,20 +226,16 @@ int main(void) {
 	alt_u8 pixelBottomLeft;
 	alt_u8 pixelBottomRight;
 	alt_u8 pixel;
-	float kernelBlur[9] = {0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11};
-	float kernelEdgeX[9] = {1, 0, -1, 2, 0, -2, 1, 0, -1};
-	float kernelEdgeY[9] = {1, 2, 1, 0, 0, 0, -1, -2, -1};
+	int kernelBlur[9] = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+	int kernelEdgeX[9] = {1, 0, -1, 2, 0, -2, 1, 0, -1};
+	int kernelEdgeY[9] = {1, 2, 1, 0, 0, 0, -1, -2, -1};
 	int thresholdValue = 100;
 
 	// Gyro
 	alt_u8 gyro_data_in;
 	alt_u8 gyro_data_out;
-	alt_u8 readX = READ_X_AXIS;
 	alt_u8 readY = READ_Y_AXIS;
-	alt_u8 readZ = READ_Z_AXIS;
-	alt_16 xData;
 	alt_16 yData;
-	alt_16 zData;
     alt_u8 regData;
     alt_u8 isrRes = 0xff;
 
@@ -282,7 +309,7 @@ int main(void) {
 				singleImageDisplay = singleImageAlteration1;
 
 			} else if (doubleTapFlag == 2) {	//Blurred image
-				convolve(singleImage, singleImageAlteration1, kernelBlur, singleCol, singleRow);;
+				blur(singleImage, singleImageAlteration1, kernelBlur, singleCol, singleRow);;
 				singleImageDisplay = singleImageAlteration1;
 
 			} else if (doubleTapFlag == 3) {	//Edge Detection image
@@ -382,7 +409,7 @@ int main(void) {
 
 				// Call image blur if needed
 				if (topLeftFlag == 3 || topRightFlag == 3 || bottomLeftFlag == 3 || bottomRightFlag == 3) {
-					convolve(quadImageOrigin, quadImageAlteration3, kernelBlur, col, row);
+					blur(quadImageOrigin, quadImageAlteration3, kernelBlur, col, row);
 				}
 
 				// Call edge detection if needed
@@ -448,11 +475,11 @@ int main(void) {
 				// Now write pixels for all quadrants
 				for (int i = 0; i < row; i++) {
 					for (int j = 0; j < col; j++) {
-						int pixelAddress = j + i * col;
-						int topLeftAddress = j + i * totalCol;
-						int topRightAddress = (j + 160) + i * totalCol;
-						int bottomLeftAddress = j + (i + 120) * totalCol;
-						int bottomRightAddress = (j + 160) + (i + 120) * totalCol;
+						pixelAddress = j + i * col;
+						topLeftAddress = j + i * totalCol;
+						topRightAddress = (j + 160) + i * totalCol;
+						bottomLeftAddress = j + (i + 120) * totalCol;
+						bottomRightAddress = (j + 160) + (i + 120) * totalCol;
 
 						pixelTopLeft = quadImageTopLeft[pixelAddress];
 						pixelTopRight = quadImageTopRight[pixelAddress];
