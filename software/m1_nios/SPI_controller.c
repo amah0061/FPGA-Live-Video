@@ -111,44 +111,15 @@ void flip(void *inputImage, void *outputImage, int width, int height) {
     }
 }
 
-// Blur function
-void blur(void *inputImage, void *outputImage, void *kernel, int width, int height) {
-	// Defining variables
-	alt_u8 *in = (alt_u8 *)inputImage;
-	alt_u8 *out = (alt_u8 *)outputImage;
-	int runningValue;
-	int *k = (int *)kernel;
-
-    for (int i = 1; i < height - 1; i++){
-        for (int j = 1; j < width - 1; j++){
-        	runningValue = 0;
-
-        	// Update running value for each of 9 pixels, starting at top left
-        	runningValue = runningValue + in[j+(i-1)*width-1]*k[0];
-        	runningValue = runningValue + in[j+(i-1)*width]*k[1];
-        	runningValue = runningValue + in[j+(i-1)*width+1]*k[2];
-        	runningValue = runningValue + in[j+(i)*width-1]*k[3];
-        	runningValue = runningValue + in[j+(i)*width]*k[4];
-        	runningValue = runningValue + in[j+(i)*width+1]*k[5];
-        	runningValue = runningValue + in[j+(i+1)*width-1]*k[6];
-        	runningValue = runningValue + in[j+(i+1)*width]*k[7];
-        	runningValue = runningValue + in[j+(i+1)*width+1]*k[8];
-
-        	// Average the running value
-        	runningValue = runningValue/9;
-
-        	// Assigning value to current pixel
-        	out[j+i*width] = runningValue;
-        }
-    }
-}
-
 void convolve(void *inputImage, void *outputImage, void *kernel, int width, int height) {
 	// Defining variables
 	alt_u8 *in = (alt_u8 *)inputImage;
-	alt_u8 *out = (alt_u8 *)outputImage;
+	alt_8 *out = (alt_8 *)outputImage;
 	int runningValue;
 	int *k = (int *)kernel;
+    int kernelSum = 0;
+
+    for (int i = 0; i < 9; i++) kernelSum += k[i];
 
     for (int i = 1; i < height - 1; i++){
         for (int j = 1; j < width - 1; j++){
@@ -165,10 +136,17 @@ void convolve(void *inputImage, void *outputImage, void *kernel, int width, int 
         	runningValue = runningValue + in[j+(i+1)*width]*k[7];
         	runningValue = runningValue + in[j+(i+1)*width+1]*k[8];
 
+        	// Normalise
+        	if (kernelSum != 0) {
+        		runningValue /= kernelSum;
+        	}
+
         	// Assigning value to current pixel
         	out[j+i*width] = runningValue;
         }
     }
+
+
 }
 
 int main(void) {
@@ -186,13 +164,13 @@ int main(void) {
 	alt_u8 *singleImage = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
 	alt_u8 *singleImageDisplay = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
 	alt_u8 *singleImageAlteration1 = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
-	alt_u8 *singleImageAlteration2 = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
+	alt_8  *edgeX = (alt_8 *)malloc(singleFrameSize * sizeof(alt_8));
+	alt_8  *edgeY = (alt_8 *)malloc(singleFrameSize * sizeof(alt_8));
 	alt_u8 *quadImageOrigin = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
 	alt_u8 *quadImageAlteration1 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
 	alt_u8 *quadImageAlteration2 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
 	alt_u8 *quadImageAlteration3 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
 	alt_u8 *quadImageAlteration4 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageAlteration5 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
 	alt_u8 *quadImageTopLeft = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
 	alt_u8 *quadImageTopRight = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
 	alt_u8 *quadImageBottomLeft = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
@@ -229,7 +207,8 @@ int main(void) {
 	int kernelBlur[9] = {1, 1, 1, 1, 1, 1, 1, 1, 1};
 	int kernelEdgeX[9] = {1, 0, -1, 2, 0, -2, 1, 0, -1};
 	int kernelEdgeY[9] = {1, 2, 1, 0, 0, 0, -1, -2, -1};
-	int thresholdValue = 100;
+	int thresholdValue = 18;
+
 
 	// Gyro
 	alt_u8 gyro_data_in;
@@ -309,17 +288,17 @@ int main(void) {
 				singleImageDisplay = singleImageAlteration1;
 
 			} else if (doubleTapFlag == 2) {	//Blurred image
-				blur(singleImage, singleImageAlteration1, kernelBlur, singleCol, singleRow);;
+				convolve(singleImage, singleImageAlteration1, kernelBlur, singleCol, singleRow);
 				singleImageDisplay = singleImageAlteration1;
 
 			} else if (doubleTapFlag == 3) {	//Edge Detection image
-				convolve(singleImage, singleImageAlteration1, kernelEdgeX, singleCol, singleRow);
-				convolve(singleImage, singleImageAlteration2, kernelEdgeY, singleCol, singleRow);
+				convolve(singleImage, edgeX, kernelEdgeX, singleCol, singleRow);
+				convolve(singleImage, edgeY, kernelEdgeY, singleCol, singleRow);
 
 				// Combine X and Y Sobel filters and checking threshold
 				for (int i = 1; i < singleRow - 1; i++){
 					for (int j = 1; j < singleCol - 1; j++){
-						singleImageAlteration1[j+i*singleCol] = abs(singleImageAlteration1[j+i*singleCol]) + abs(singleImageAlteration2[j+i*singleCol]);
+						singleImageAlteration1[j+i*singleCol] = abs(edgeX[j+i*singleCol]) + abs(edgeY[j+i*singleCol]);
 
 						if (singleImageAlteration1[j+i*singleCol] < thresholdValue){
 							singleImageAlteration1[j+i*singleCol] = 0;
@@ -409,17 +388,17 @@ int main(void) {
 
 				// Call image blur if needed
 				if (topLeftFlag == 3 || topRightFlag == 3 || bottomLeftFlag == 3 || bottomRightFlag == 3) {
-					blur(quadImageOrigin, quadImageAlteration3, kernelBlur, col, row);
+					convolve(quadImageOrigin, quadImageAlteration3, kernelBlur, col, row);
 				}
 
 				// Call edge detection if needed
 				if (topLeftFlag == 4 || topRightFlag == 4 || bottomLeftFlag == 4 || bottomRightFlag == 4) {
-					convolve(quadImageOrigin, quadImageAlteration4, kernelEdgeX, col, row);
-					convolve(quadImageOrigin, quadImageAlteration5, kernelEdgeY, col, row);
+					convolve(quadImageOrigin, edgeX, kernelEdgeX, col, row);
+					convolve(quadImageOrigin, edgeY, kernelEdgeY, col, row);
 					// Combine X and Y Sobel filters and checking threshold
 					for (int i = 1; i < row - 1; i++){
 						for (int j = 1; j < col - 1; j++){
-							quadImageAlteration4[j+i*col] = abs(quadImageAlteration4[j+i*col]) + abs(quadImageAlteration5[j+i*col]);
+							quadImageAlteration4[j+i*col] = abs(edgeX[j+i*col]) + abs(edgeY[j+i*col]);
 
 							if (quadImageAlteration4[j+i*col] < thresholdValue){
 								quadImageAlteration4[j+i*col] = 0;
@@ -540,6 +519,8 @@ int main(void) {
 
 			// Check if camera is ready with a frame
 			camReady = IORD(CAMERA_BASE,0);
+
+			}
 		}
 	}
 }
