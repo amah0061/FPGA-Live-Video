@@ -520,7 +520,7 @@ int main(void) {
 			// Check if camera is ready with a frame
 			camReady = IORD(CAMERA_BASE,0);
 
-			}
+
 		}
 	}
 }
