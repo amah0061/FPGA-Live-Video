@@ -230,19 +230,6 @@
          type = "int";
       }
    }
-   element new_sdram_controller_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "0";
-         type = "String";
-      }
-   }
    element nios2_gen2_0
    {
       datum _sortIndex
@@ -270,19 +257,6 @@
       {
          value = "2";
          type = "int";
-      }
-   }
-   element onchip_memory2_0.s1
-   {
-      datum _lockedAddress
-      {
-         value = "1";
-         type = "boolean";
-      }
-      datum baseAddress
-      {
-         value = "67239936";
-         type = "String";
       }
    }
    element spi_0

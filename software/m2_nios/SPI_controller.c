@@ -9,15 +9,15 @@
 * Ryan Shanta 32284470
 * Xavier Hasiotis-Welsh 33880271
 */
-// Created Date: 29/03/2025
-// version ='1.0'
+// Last edited: 04/05/2025
+// version ='2.0'
 
-#include "../m1_nios_bsp/system.h"
-#include "../m1_nios_bsp/HAL/inc/io.h"
-#include "../m1_nios_bsp/HAL/inc/alt_types.h"
-#include "../m1_nios_bsp/drivers/inc/altera_avalon_pio_regs.h"
-#include "../m1_nios_bsp/drivers/inc/altera_avalon_spi.h"
-#include "../m1_nios_bsp/drivers/inc/altera_avalon_spi_regs.h"
+#include "../m2_nios_bsp/system.h"
+#include "../m2_nios_bsp/HAL/inc/io.h"
+#include "../m2_nios_bsp/HAL/inc/alt_types.h"
+#include "../m2_nios_bsp/drivers/inc/altera_avalon_pio_regs.h"
+#include "../m2_nios_bsp/drivers/inc/altera_avalon_spi.h"
+#include "../m2_nios_bsp/drivers/inc/altera_avalon_spi_regs.h"
 #include "stdlib.h"
 
 // Gyro write Registers
@@ -119,8 +119,10 @@ void convolve(void *inputImage, void *outputImage, void *kernel, int width, int 
 	int *k = (int *)kernel;
     int kernelSum = 0;
 
+    // Find sum of kernel for normalisation
     for (int i = 0; i < 9; i++) kernelSum += k[i];
 
+    // Main convolution loop
     for (int i = 1; i < height - 1; i++){
         for (int j = 1; j < width - 1; j++){
         	runningValue = 0;

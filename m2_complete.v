@@ -1,6 +1,6 @@
 // *********************************
 //
-// Milestone 1 task 1 integration module
+// Milestone 2
 // Made by Group B06
 // 
 // Author(s): 
@@ -10,11 +10,11 @@
 //	Ryan Shanta 32284470, 
 //	Xavier Hasiotis-Welsh 33880271,
 //
-// Last Edited: 10/04/2025
+// Last Edited: 04/05/2025
 //
 // *********************************
 
-module m1_complete (
+module m2_complete (
 	// task 1
 	input CLOCK_50,       
 	output wire [3:0] VGA_R,  
@@ -39,6 +39,7 @@ module m1_complete (
 	output DRAM_UDQM,
 	output DRAM_RAS_N,
 	output DRAM_WE_N,
+	// hex
 	output [7:0] HEX0,
 	output [7:0] HEX1,
 	output [7:0] HEX2,
@@ -50,6 +51,7 @@ module m1_complete (
 	output GSENSOR_CS_N,
 	input [2:1] GSENSOR_INT
 );
+
 // Define wires
 wire vga_clk;
 wire [3:0] data_raw, data_buff;
@@ -57,6 +59,7 @@ wire [16:0] read_address, write_address;
 wire [31:0] usec_count;
 wire [23:0] hex0;
 wire [23:0] hex3;
+
 // SPI wires
 wire spi_clk;
 wire spi_miso;
@@ -110,20 +113,22 @@ usec_counter usec_counter_inst(
 );
 
 // Instantiate nios system
-m1_nios_system u0 (
+m2_nios_system u0 (
 .address_export(write_address),
 .camera_export(GPIO[2]),
 .clk_clk(CLOCK_50),
 .data_export(data_raw),
-// Gyro
+// gyro
 .gsensor_int1_export(GSENSOR_INT[1]),
 .gsensor_int2_export(GSENSOR_INT[2]),
+// peripherals
 .hex_0_export(hex0),
 .hex_3_export(hex3),
 .key_export(KEY[1:0]),
 .ledr_export(LEDR[9:0]),
 .sw_export(SW[9:0]),
 .reset_reset_n(KEY[0]),
+// sdram
 .sdram_addr(DRAM_ADDR),
 .sdram_ba(DRAM_BA),      		
 .sdram_cas_n(DRAM_CAS_N),
@@ -147,6 +152,7 @@ m1_nios_system u0 (
 assign GPIO[8] = spi_mosi;
 assign GPIO[9] = spi_clk;
 assign GPIO[5] = spi_cs[0];
+
 // gyro
 assign GSENSOR_SDI = spi_mosi;
 assign GSENSOR_SCLK = spi_clk;
