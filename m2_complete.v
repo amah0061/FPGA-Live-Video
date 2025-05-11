@@ -66,6 +66,10 @@ wire spi_miso;
 wire spi_mosi;
 wire [1:0] spi_cs;
 
+// Processor communication wires
+wire p_spi_out;
+wire p_processing_display_out;
+
 // SPI predef pins to high impedance (missing CAM_READY)
 assign GPIO[1:0] = 2'bzz;
 assign GPIO[4:3] = 2'bzz;
@@ -128,6 +132,11 @@ m2_nios_system u0 (
 .ledr_export(LEDR[9:0]),
 .sw_export(SW[9:0]),
 .reset_reset_n(KEY[0]),
+// peripherals between processor
+.p_processing_display_in_export(p_spi_out),
+.p_processing_display_out_export(p_processing_display_out),
+.p_spi_in_export(p_processing_display_out),
+.p_spi_out_export(p_spi_out),
 // sdram
 .sdram_addr(DRAM_ADDR),
 .sdram_ba(DRAM_BA),      		
