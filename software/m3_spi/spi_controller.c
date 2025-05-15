@@ -54,12 +54,12 @@
 #define READ_Z_AXIS 0xc0 | Z_LB // enable read bit and multi byte
 
 // define shared buffer variables:
-int *doubleTapFlagS = (int*)0x02000000;
-int *keyFlagS = (int*)0x02000004;
-int *swFlagS = (int*)0x02000008;
-int *yDataS = (int*)0x0200000C;
-alt_u8 *singleFrameS = (alt_u8*)0x02000010;
-alt_u8 *quadFrameS = (alt_u8*)0x02012C10;
+int *doubleTapFlagS = (int*)0x03000000;
+int *keyFlagS = (int*)0x03000004;
+int *swFlagS = (int*)0x03000008;
+int *yDataS = (int*)0x0300000C;
+alt_u8 *singleFrameS = (alt_u8*)0x03000010;
+alt_u8 *quadFrameS = (alt_u8*)0x03012C10;
 
 // Global interrupt flags
 volatile int doubleTapFlag = 0;
