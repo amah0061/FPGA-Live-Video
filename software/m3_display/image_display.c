@@ -22,12 +22,12 @@
 int *keyFlagDisplay = (int*)0x03017710;
 alt_u8 *processedSingleFrameS = (alt_u8*)0x03017714;
 alt_u8 *processedTopLeft = (alt_u8*)0x0302A314;
-alt_u8 *processedTopRight = (alt_u8*)0x0302EE14;
-alt_u8 *processedBottomLeft = (alt_u8*)0x03033914;
-alt_u8 *processedBottomRight = (alt_u8*)0x03038414;
+alt_u8 *processedTopRight = (alt_u8*)0x0303CF14;
+alt_u8 *processedBottomLeft = (alt_u8*)0x0304FB14;
+alt_u8 *processedBottomRight = (alt_u8*)0x03062714;
 
 // Define volatile ints
-volatile int commFlag = 1;
+volatile int commFlag = 0;
 
 // communication interrupt handler
 void comm_isr () {
@@ -114,26 +114,19 @@ int main(void){
 		// Read images
 		if (keyFlag == 0){
 			for (int i = 0; i < singleRow; i++) {
-			    for (int j = 0; j < singleCol; j++) {
-				    idx = j+i*singleCol;
-				    singleImage[idx] = IORD(processedSingleFrameS, idx);
-			    }
-		    }
+				for (int j = 0; j < singleCol; j++) {
+					idx = j+i*singleCol;
+					singleImage[idx] = IORD(processedSingleFrameS, idx);
+				}
+			}
 		} else if (keyFlag == 1){
 			for (int i = 0; i < row; i++) {
 				for (int j = 0; j < col; j++) {
-					// Calculate address
-					idx = j + i * col;
-					// Read data from SDRAM
-					pixelTopLeft = IORD(processedTopLeft, idx);
-					pixelTopRight = IORD(processedTopRight, idx);
-					pixelBottomLeft = IORD(processedBottomLeft, idx);
-					pixelBottomRight = IORD(processedBottomRight, idx);
-					// get pixel value for each display
-					quadImageTopLeft[idx] = pixelTopLeft;
-					quadImageTopRight[idx] = pixelTopRight;
-					quadImageBottomLeft[idx] = pixelBottomLeft;
-					quadImageBottomRight[idx] = pixelBottomRight;
+					idx = j+i*col;
+					quadImageTopLeft[idx] = IORD(processedTopLeft, idx);
+					quadImageTopRight[idx] = IORD(processedTopRight, idx);
+					quadImageBottomLeft[idx] = IORD(processedBottomLeft, idx);
+					quadImageBottomRight[idx] = IORD(processedBottomRight, idx);
 				}
 			}
 		}
@@ -217,5 +210,6 @@ int main(void){
 		// Write to PIOs
 		IOWR(HEX_3_BASE, 0, hexHigh);
 		IOWR(HEX_0_BASE, 0, hexLow);
+
 	}
 }

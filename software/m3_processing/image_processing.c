@@ -29,13 +29,13 @@ alt_u8 *quadFrameS = (alt_u8*)0x03012C10;
 int *keyFlagDisplay = (int*)0x03017710;
 alt_u8 *processedSingleFrameS = (alt_u8*)0x03017714;
 alt_u8 *processedTopLeft = (alt_u8*)0x0302A314;
-alt_u8 *processedTopRight = (alt_u8*)0x0302EE14;
-alt_u8 *processedBottomLeft = (alt_u8*)0x03033914;
-alt_u8 *processedBottomRight = (alt_u8*)0x03038414;
+alt_u8 *processedTopRight = (alt_u8*)0x0303CF14;
+alt_u8 *processedBottomLeft = (alt_u8*)0x0304FB14;
+alt_u8 *processedBottomRight = (alt_u8*)0x03062714;
 
 // Define volatile ints
-volatile int comm0Flag = 1;
-volatile int comm1Flag = 1;
+volatile int comm0Flag = 0;
+volatile int comm1Flag = 0;
 
 // communication with SPI interrupt handler
 void comm_spi_isr () {
@@ -105,46 +105,61 @@ void convolve(void *inputImage, void *outputImage, void *kernel, int width, int 
 int main(void){
 
 	// Defining variables
-		int singleCol = 320;
-		int singleRow = 240;
-		int col = 160;
-		int row = 120;
-		int totalCol = 320;
-		int quadFrameSize = row * col;
-		int singleFrameSize = singleCol*singleRow;
-		alt_u8 *singleImage = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
-		alt_u8 *singleImageDisplay = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
-		alt_u8 *singleImageAlteration1 = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
-		alt_8  *edgeX = (alt_8 *)malloc(singleFrameSize * sizeof(alt_8));
-		alt_8  *edgeY = (alt_8 *)malloc(singleFrameSize * sizeof(alt_8));
-		alt_u8 *quadImageOrigin = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-		alt_u8 *quadImageAlteration1 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-		alt_u8 *quadImageAlteration2 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-		alt_u8 *quadImageAlteration3 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-		alt_u8 *quadImageAlteration4 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-		alt_u8 *quadImageTopLeft = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-		alt_u8 *quadImageTopRight = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-		alt_u8 *quadImageBottomLeft = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-		alt_u8 *quadImageBottomRight = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-		int topLeftFlag = 1;
-		int topRightFlag = 1;
-		int bottomLeftFlag = 1;
-		int bottomRightFlag = 1;
-		int selectedAlteration;
-		alt_u8 pixelTopLeft;
-		alt_u8 pixelTopRight;
-		alt_u8 pixelBottomLeft;
-		alt_u8 pixelBottomRight;
-		alt_u8 pixel;
-		int kernelBlur[9] = {1, 1, 1, 1, 1, 1, 1, 1, 1};
-		int kernelEdgeX[9] = {1, 0, -1, 2, 0, -2, 1, 0, -1};
-		int kernelEdgeY[9] = {1, 2, 1, 0, 0, 0, -1, -2, -1};
-		int thresholdValue = 18;
-		int doubleTapFlag;
-		int swFlag;
-		int keyFlag;
-		int yData;
-		int idx;
+	int singleCol = 320;
+	int singleRow = 240;
+	int col = 160;
+	int row = 120;
+	int totalCol = 320;
+	int quadFrameSize = row * col;
+	int singleFrameSize = singleCol*singleRow;
+	alt_u8 *singleImage = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
+	alt_u8 *singleImageDisplay = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
+	alt_u8 *singleImageAlteration1 = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
+	alt_8  *edgeX = (alt_8 *)malloc(singleFrameSize * sizeof(alt_8));
+	alt_8  *edgeY = (alt_8 *)malloc(singleFrameSize * sizeof(alt_8));
+	alt_u8 *quadImageOrigin = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImageAlteration1 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImageAlteration2 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImageAlteration3 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImageAlteration4 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImageTopLeft = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImageTopRight = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImageBottomLeft = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImageBottomRight = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	int topLeftFlag = 1;
+	int topRightFlag = 1;
+	int bottomLeftFlag = 1;
+	int bottomRightFlag = 1;
+	int selectedAlteration;
+	int address;
+	int pixelAddress;
+	int topLeftAddress;
+	int topRightAddress;
+	int bottomLeftAddress;
+	int bottomRightAddress;
+	int startTime;
+	int endTime;
+	int frameTime;
+	float timeConversion = 1000000.00;
+	float frameRate;
+	int rateInt;
+	int d0, d1, d2, d3;
+	alt_u8 hex3, hex2, hex1, hex0;
+	alt_u32 hexHigh, hexLow;
+	alt_u8 pixelTopLeft;
+	alt_u8 pixelTopRight;
+	alt_u8 pixelBottomLeft;
+	alt_u8 pixelBottomRight;
+	alt_u8 pixel;
+	int kernelBlur[9] = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+	int kernelEdgeX[9] = {1, 0, -1, 2, 0, -2, 1, 0, -1};
+	int kernelEdgeY[9] = {1, 2, 1, 0, 0, 0, -1, -2, -1};
+	int thresholdValue = 18;
+	int doubleTapFlag;
+	int swFlag;
+	int keyFlag;
+	int yData;
+	int idx;
 
 	// mutex
 	alt_mutex_dev *mutex = altera_avalon_mutex_open("/dev/mutex_0");
@@ -160,7 +175,8 @@ int main(void){
 	alt_ic_isr_register(P_PROCESSING1_IN_IRQ_INTERRUPT_CONTROLLER_ID, P_PROCESSING1_IN_IRQ, comm_display_isr, NULL, 0x0);
 
 	while (1){
-		// Wait for display processor to release the mutex
+
+		// Wait for processor to send image
 		while (comm0Flag == 0){
 
 		}
@@ -199,6 +215,12 @@ int main(void){
 		IOWR(P_PROCESSING0_OUT_BASE,0,0);
 
 		if (keyFlag == 0) {
+			// Shift each pixel 4 bits to the right to get rid of junk
+			for (int i = 0; i < singleRow; i++){
+				for (int j = 0; j < singleCol; j++){
+					singleImage[j+i*singleCol] = singleImage[j+i*singleCol]>>4;
+				}
+			}
 			// image alterations
 			if (doubleTapFlag == 0) {			//Default image
 				singleImageDisplay = singleImage;
@@ -228,27 +250,27 @@ int main(void){
 				singleImageDisplay = singleImageAlteration1;
 			}
 
-			// Wait for processor to send signal
-			while (comm1Flag == 0){
-
-			}
-			comm1Flag = 0;
-			// Aquire mutex
+			// Write frame to display processor
 			altera_avalon_mutex_lock(mutex, 1);
-			// writing Single image data to SDRAM
-			for (int i = 0; i < singleRow; i++){
-				for (int j = 0; j < singleCol; j++){
-					// Calculate address
-					idx = j + i * totalCol;
-					pixel = singleImageDisplay[idx];
-					// Write address and data to pixel buffer
-					IOWR(processedSingleFrameS, idx, pixel);
+
+			for (int i = 0; i < singleRow; i++) {
+				for (int j = 0; j < singleCol; j++) {
+					idx = j+i*singleCol;
+					IOWR(processedSingleFrameS, idx, singleImageDisplay[idx]);
 				}
 			}
-			// Unluck mutex
+
+			// Unlock mutex
 			altera_avalon_mutex_unlock(mutex);
 
 		} else if (keyFlag == 1) {
+			// Shift each pixel 4 bits to the right to get rid of junk
+			for (int i = 0; i < row; i++){
+				for (int j = 0; j < col; j++){
+					quadImageOrigin[j+i*col] = quadImageOrigin[j+i*col]>>4;
+				}
+			}
+
 			// Select alteration based on y position
 			if (yData >= -20 && yData <= 20) {
 				selectedAlteration = 1;
@@ -351,37 +373,33 @@ int main(void){
 				quadImageBottomRight = quadImageAlteration4;
 			}
 
-			// Wait for processor to send signal
-			while (comm1Flag == 0){
-
-			}
-			comm1Flag = 0;
-			// Aquire mutex
+			// Write quad frames to display processor
 			altera_avalon_mutex_lock(mutex, 1);
-			// Send all images to SDRAM
-			for (int i = 0; i < row; i++){
-				for (int j = 0; j < col; j++){
-					// Calculate address
-					idx = j + i * col;
-					pixelTopLeft = quadImageTopLeft[idx];
-					pixelTopRight = quadImageTopRight[idx];
-					pixelBottomLeft = quadImageBottomLeft[idx];
-					pixelBottomRight = quadImageBottomRight[idx];
-					// Write data to SDRAM
-					IOWR(processedTopLeft, idx, pixelTopLeft);
-					IOWR(processedTopRight, idx, pixelTopRight);
-					IOWR(processedBottomLeft, idx, pixelBottomLeft);
-					IOWR(processedBottomRight, idx, pixelBottomRight);
+
+			for (int i = 0; i < row; i++) {
+				for (int j = 0; j < col; j++) {
+					idx = j+i*col;
+					IOWR(processedTopLeft, idx, quadImageTopLeft[idx]);
+					IOWR(processedTopRight, idx, quadImageTopRight[idx]);
+					IOWR(processedBottomLeft, idx, quadImageBottomLeft[idx]);
+					IOWR(processedBottomRight, idx, quadImageBottomRight[idx]);
+
 				}
 			}
-			// Unluck mutex
+
+			// Unlock mutex
 			altera_avalon_mutex_unlock(mutex);
 		}
 
 		// Tell display processor data has been shared and SDRAM is available
 		IOWR(P_PROCESSING1_OUT_BASE,0,1);
 		IOWR(P_PROCESSING1_OUT_BASE,0,0);
+
+		// Wait for processor to send signal
+		while (comm1Flag == 0){
+
+		}
+		comm1Flag = 0;
+
 	}
 }
-
-
