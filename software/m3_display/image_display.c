@@ -19,12 +19,12 @@
 #include "altera_avalon_mutex.h"
 
 // define shared buffer variables:
-int *keyFlagDisplay = (int*)0x03017710;
-alt_u8 *processedSingleFrameS = (alt_u8*)0x03017714;
-alt_u8 *processedTopLeft = (alt_u8*)0x0302A314;
-alt_u8 *processedTopRight = (alt_u8*)0x0303CF14;
-alt_u8 *processedBottomLeft = (alt_u8*)0x0304FB14;
-alt_u8 *processedBottomRight = (alt_u8*)0x03062714;
+int *keyFlagDisplay = (int*)0x03517710;
+alt_u8 *processedSingleFrameS = (alt_u8*)0x03517714;
+alt_u8 *processedTopLeft = (alt_u8*)0x0352A314;
+alt_u8 *processedTopRight = (alt_u8*)0x0353CF14;
+alt_u8 *processedBottomLeft = (alt_u8*)0x0354FB14;
+alt_u8 *processedBottomRight = (alt_u8*)0x03562714;
 
 // Define volatile ints
 volatile int commFlag = 0;
@@ -133,7 +133,11 @@ int main(void){
 		// Unluck mutex
 		altera_avalon_mutex_unlock(mutex);
 
-		// Tell other processor to start preparing the next image
+		// Tell spi processor to start preparing the next image
+		IOWR(P_DISPLAY_OUT_SPI_BASE,0,1);
+		IOWR(P_DISPLAY_OUT_SPI_BASE,0,0);
+
+		// Tell processing processor to start preparing the next image
 		IOWR(P_DISPLAY_OUT_BASE,0,1);
 		IOWR(P_DISPLAY_OUT_BASE,0,0);
 

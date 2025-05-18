@@ -71,6 +71,7 @@ wire p_spi_out;
 wire p_processing0_out;
 wire p_processing1_out;
 wire p_display_out;
+wire p_display_out_spi;
 
 // SPI predef pins to high impedance (missing CAM_READY)
 assign GPIO[1:0] = 2'bzz;
@@ -143,6 +144,8 @@ m3_nios_system u0 (
 .p_display_out_export(p_display_out),
 .p_processing1_in_export(p_display_out),
 .p_processing1_out_export(p_processing1_out),
+.p_spi_in_display_export(p_display_out_spi),
+.p_display_out_spi_export(p_display_out_spi),
 // sdram
 .sdram_addr(DRAM_ADDR),
 .sdram_ba(DRAM_BA),      		

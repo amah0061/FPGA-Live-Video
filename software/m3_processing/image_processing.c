@@ -20,18 +20,18 @@
 #include "altera_avalon_mutex.h"
 
 // define shared buffer variables:
-int *doubleTapFlagS = (int*)0x03000000;
-int *keyFlagS = (int*)0x03000004;
-int *swFlagS = (int*)0x03000008;
-int *yDataS = (int*)0x0300000C;
-alt_u8 *singleFrameS = (alt_u8*)0x03000010;
-alt_u8 *quadFrameS = (alt_u8*)0x03012C10;
-int *keyFlagDisplay = (int*)0x03017710;
-alt_u8 *processedSingleFrameS = (alt_u8*)0x03017714;
-alt_u8 *processedTopLeft = (alt_u8*)0x0302A314;
-alt_u8 *processedTopRight = (alt_u8*)0x0303CF14;
-alt_u8 *processedBottomLeft = (alt_u8*)0x0304FB14;
-alt_u8 *processedBottomRight = (alt_u8*)0x03062714;
+int *doubleTapFlagS = (int*)0x03500000;
+int *keyFlagS = (int*)0x03500004;
+int *swFlagS = (int*)0x03500008;
+int *yDataS = (int*)0x0350000C;
+alt_u8 *singleFrameS = (alt_u8*)0x03500010;
+alt_u8 *quadFrameS = (alt_u8*)0x03512C10;
+int *keyFlagDisplay = (int*)0x03517710;
+alt_u8 *processedSingleFrameS = (alt_u8*)0x03517714;
+alt_u8 *processedTopLeft = (alt_u8*)0x0352A314;
+alt_u8 *processedTopRight = (alt_u8*)0x0353CF14;
+alt_u8 *processedBottomLeft = (alt_u8*)0x0354FB14;
+alt_u8 *processedBottomRight = (alt_u8*)0x03562714;
 
 // Define volatile ints
 volatile int comm0Flag = 0;
@@ -65,6 +65,7 @@ void flip(void *inputImage, void *outputImage, int width, int height) {
 
 // Convolve function
 void convolve(void *inputImage, void *outputImage, void *kernel, int width, int height) {
+
 	// Defining variables
 	alt_u8 *in = (alt_u8 *)inputImage;
 	alt_8 *out = (alt_8 *)outputImage;
@@ -109,7 +110,6 @@ int main(void){
 	int singleRow = 240;
 	int col = 160;
 	int row = 120;
-	int totalCol = 320;
 	int quadFrameSize = row * col;
 	int singleFrameSize = singleCol*singleRow;
 	alt_u8 *singleImage = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
@@ -131,26 +131,6 @@ int main(void){
 	int bottomLeftFlag = 1;
 	int bottomRightFlag = 1;
 	int selectedAlteration;
-	int address;
-	int pixelAddress;
-	int topLeftAddress;
-	int topRightAddress;
-	int bottomLeftAddress;
-	int bottomRightAddress;
-	int startTime;
-	int endTime;
-	int frameTime;
-	float timeConversion = 1000000.00;
-	float frameRate;
-	int rateInt;
-	int d0, d1, d2, d3;
-	alt_u8 hex3, hex2, hex1, hex0;
-	alt_u32 hexHigh, hexLow;
-	alt_u8 pixelTopLeft;
-	alt_u8 pixelTopRight;
-	alt_u8 pixelBottomLeft;
-	alt_u8 pixelBottomRight;
-	alt_u8 pixel;
 	int kernelBlur[9] = {1, 1, 1, 1, 1, 1, 1, 1, 1};
 	int kernelEdgeX[9] = {1, 0, -1, 2, 0, -2, 1, 0, -1};
 	int kernelEdgeY[9] = {1, 2, 1, 0, 0, 0, -1, -2, -1};
