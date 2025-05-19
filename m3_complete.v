@@ -14,7 +14,7 @@
 //
 // *********************************
 
-module m2_complete (
+module m3_complete (
 	// task 1
 	input CLOCK_50,       
 	output wire [3:0] VGA_R,  
@@ -68,7 +68,10 @@ wire [1:0] spi_cs;
 
 // Processor communication wires
 wire p_spi_out;
-wire p_processing_display_out;
+wire p_processing0_out;
+wire p_processing1_out;
+wire p_display_out;
+wire p_display_out_spi;
 
 // SPI predef pins to high impedance (missing CAM_READY)
 assign GPIO[1:0] = 2'bzz;
@@ -117,7 +120,7 @@ usec_counter usec_counter_inst(
 );
 
 // Instantiate nios system
-m2_nios_system u0 (
+m3_nios_system u0 (
 .address_export(write_address),
 .camera_export(GPIO[2]),
 .clk_clk(CLOCK_50),
@@ -133,10 +136,16 @@ m2_nios_system u0 (
 .sw_export(SW[9:0]),
 .reset_reset_n(KEY[0]),
 // peripherals between processor
-.p_processing_display_in_export(p_spi_out),
-.p_processing_display_out_export(p_processing_display_out),
-.p_spi_in_export(p_processing_display_out),
+.p_processing0_in_export(p_spi_out),
+.p_processing0_out_export(p_processing0_out),
+.p_spi_in_export(p_processing0_out),
 .p_spi_out_export(p_spi_out),
+.p_display_in_export(p_processing1_out),
+.p_display_out_export(p_display_out),
+.p_processing1_in_export(p_display_out),
+.p_processing1_out_export(p_processing1_out),
+.p_spi_in_display_export(p_display_out_spi),
+.p_display_out_spi_export(p_display_out_spi),
 // sdram
 .sdram_addr(DRAM_ADDR),
 .sdram_ba(DRAM_BA),      		

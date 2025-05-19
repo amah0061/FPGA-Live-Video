@@ -54,18 +54,19 @@
 #define READ_Z_AXIS 0xc0 | Z_LB // enable read bit and multi byte
 
 // define shared buffer variables:
-int *doubleTapFlagS = (int*)0x02000000;
-int *keyFlagS = (int*)0x02000004;
-int *swFlagS = (int*)0x02000008;
-int *yDataS = (int*)0x0200000C;
-alt_u8 *singleFrameS = (alt_u8*)0x02000010;
-alt_u8 *quadFrameS = (alt_u8*)0x02012C10;
+int *doubleTapFlagS = (int*)0x03500000;
+int *keyFlagS = (int*)0x03500004;
+int *swFlagS = (int*)0x03500008;
+int *yDataS = (int*)0x0350000C;
+alt_u8 *singleFrameS = (alt_u8*)0x03500010;
+alt_u8 *quadFrameS = (alt_u8*)0x03512C10;
 
 // Global interrupt flags
 volatile int doubleTapFlag = 0;
 volatile int keyFlag = 0;
 volatile int swFlag = 0;
-volatile int commFlag = 0;
+volatile int commFlagProcessing = 0;
+volatile int commFlagDisplay = 1;
 
 // Configure the gyro
 alt_u8 gyro_config[CONFIG_LENGHT] = {
@@ -110,10 +111,17 @@ void switch_isr () {
 }
 
 // communication interrupt handler
-void comm_isr () {
+void comm_processing_isr () {
 	IOWR_ALTERA_AVALON_PIO_EDGE_CAP(P_SPI_IN_BASE,0);
 	IOWR(P_SPI_IN_BASE, 3, 0);
-	commFlag = 1;
+	commFlagProcessing = 1;
+}
+
+// communication interrupt handler
+void comm_display_isr () {
+	IOWR_ALTERA_AVALON_PIO_EDGE_CAP(P_SPI_IN_DISPLAY_BASE,0);
+	IOWR(P_SPI_IN_DISPLAY_BASE, 3, 0);
+	commFlagDisplay = 1;
 }
 
 int main(void) {
@@ -171,7 +179,13 @@ int main(void) {
 	// Communication interrupt setup
 	IOWR(P_SPI_IN_BASE, 3, 0); // Clear edge
 	IOWR(P_SPI_IN_BASE, 2, 0x1); // Enable interrupts
-	alt_ic_isr_register(P_SPI_IN_IRQ_INTERRUPT_CONTROLLER_ID, P_SPI_IN_IRQ, comm_isr, NULL, 0x0);
+	alt_ic_isr_register(P_SPI_IN_IRQ_INTERRUPT_CONTROLLER_ID, P_SPI_IN_IRQ, comm_processing_isr, NULL, 0x0);
+
+	// Communication interrupt setup
+	IOWR(P_SPI_IN_DISPLAY_BASE, 3, 0); // Clear edge
+	IOWR(P_SPI_IN_DISPLAY_BASE, 2, 0x1); // Enable interrupts
+	alt_ic_isr_register(P_SPI_IN_DISPLAY_IRQ_INTERRUPT_CONTROLLER_ID, P_SPI_IN_DISPLAY_IRQ, comm_display_isr, NULL, 0x0);
+
 
 	// main loop
 	while(1){
@@ -208,6 +222,12 @@ int main(void) {
 		// Reset camera to be in a state to not except data
 		camReady = 0;
 
+		// Wait for communication from other display processor
+		while (commFlagDisplay == 0){
+
+		}
+		commFlagDisplay = 0;
+
 		// Write frame, SW/Key/Doubletap/yData flags to memory
 	    altera_avalon_mutex_lock(mutex, 1);
 	    // Write flags
@@ -241,11 +261,11 @@ int main(void) {
 	    IOWR(P_SPI_OUT_BASE,0,1);
 	    IOWR(P_SPI_OUT_BASE,0,0);
 
-	    // Wait for communication from other processor
-	    while (commFlag == 0){
+	    // Wait for communication from other processing processor
+	    while (commFlagProcessing == 0){
 
 	    }
-	    commFlag = 0;
+	    commFlagProcessing = 0;
 
 		// Writing frame to pixel bugger
 		while (camReady == 0){
