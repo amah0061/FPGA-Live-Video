@@ -24,14 +24,14 @@ int *doubleTapFlagS = (int*)0x03500000;
 int *keyFlagS = (int*)0x03500004;
 int *swFlagS = (int*)0x03500008;
 int *yDataS = (int*)0x0350000C;
-alt_u8 *singleFrameS = (alt_u8*)0x03500010;
-alt_u8 *quadFrameS = (alt_u8*)0x03512C10;
-int *keyFlagDisplay = (int*)0x03517710;
-alt_u8 *processedSingleFrameS = (alt_u8*)0x03517714;
-alt_u8 *processedTopLeft = (alt_u8*)0x0352A314;
-alt_u8 *processedTopRight = (alt_u8*)0x0353CF14;
-alt_u8 *processedBottomLeft = (alt_u8*)0x0354FB14;
-alt_u8 *processedBottomRight = (alt_u8*)0x03562714;
+alt_u16 *singleFrameS = (alt_u16*)0x03500010;
+alt_u16 *quadFrameS = (alt_u16*)0x03525810;
+int *keyFlagDisplay = (int*)0x0352EE10;
+alt_u16 *processedSingleFrameS = (alt_u16*)0x0352EE14;
+alt_u16 *processedTopLeft = (alt_u16*)0x03554614;
+alt_u16 *processedTopRight = (alt_u16*)0x03567214;
+alt_u16 *processedBottomLeft = (alt_u16*)0x03579E14;
+alt_u16 *processedBottomRight = (alt_u16*)0x0358CA14;
 
 // Define volatile ints
 volatile int comm0Flag = 0;
@@ -108,24 +108,24 @@ int main(void){
 	// Defining variables
 	int singleCol = 320;
 	int singleRow = 240;
-	int col = 160;
-	int row = 120;
-	int quadFrameSize = row * col;
+	int quadCol = 160;
+	int quadRow = 120;
+	int quadFrameSize = quadRow * quadCol;
 	int singleFrameSize = singleCol*singleRow;
-	alt_u8 *singleImage = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
-	alt_u8 *singleImageDisplay = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
-	alt_u8 *singleImageAlteration1 = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
-	alt_8  *edgeX = (alt_8 *)malloc(singleFrameSize * sizeof(alt_8));
-	alt_8  *edgeY = (alt_8 *)malloc(singleFrameSize * sizeof(alt_8));
-	alt_u8 *quadImageOrigin = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageAlteration1 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageAlteration2 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageAlteration3 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageAlteration4 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageTopLeft = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageTopRight = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageBottomLeft = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageBottomRight = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u16 *singleImage = (alt_u16 *)malloc(singleFrameSize * sizeof(alt_u16));
+	alt_u16 *singleImageDisplay = (alt_u16 *)malloc(singleFrameSize * sizeof(alt_u16));
+	alt_u16 *singleImageAlteration1 = (alt_u16 *)malloc(singleFrameSize * sizeof(alt_u16));
+	alt_u16  *edgeX = (alt_u16 *)malloc(singleFrameSize * sizeof(alt_u16));
+	alt_u16  *edgeY = (alt_u16 *)malloc(singleFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageOrigin = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageAlteration1 = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageAlteration2 = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageAlteration3 = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageAlteration4 = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageTopLeft = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageTopRight = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageBottomLeft = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageBottomRight = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
 	int topLeftFlag = 1;
 	int topRightFlag = 1;
 	int bottomLeftFlag = 1;
@@ -180,9 +180,9 @@ int main(void){
 			    }
 		    }
 		} else if (keyFlag == 1){
-			for (int i = 0; i < row; i++) {
-				for (int j = 0; j < col; j++) {
-					idx = j+i*col;
+			for (int i = 0; i < quadRow; i++) {
+				for (int j = 0; j < quadCol; j++) {
+					idx = j+i*quadCol;
 					quadImageOrigin[idx] = IORD(quadFrameS, idx);
 				}
 			}
@@ -195,12 +195,6 @@ int main(void){
 		IOWR(P_PROCESSING0_OUT_BASE,0,0);
 
 		if (keyFlag == 0) {
-			// Shift each pixel 4 bits to the right to get rid of junk
-			for (int i = 0; i < singleRow; i++){
-				for (int j = 0; j < singleCol; j++){
-					singleImage[j+i*singleCol] = singleImage[j+i*singleCol]>>4;
-				}
-			}
 			// image alterations
 			if (doubleTapFlag == 0) {			//Default image
 				singleImageDisplay = singleImage;
@@ -244,13 +238,6 @@ int main(void){
 			altera_avalon_mutex_unlock(mutex);
 
 		} else if (keyFlag == 1) {
-			// Shift each pixel 4 bits to the right to get rid of junk
-			for (int i = 0; i < row; i++){
-				for (int j = 0; j < col; j++){
-					quadImageOrigin[j+i*col] = quadImageOrigin[j+i*col]>>4;
-				}
-			}
-
 			// Select alteration based on y position
 			if (yData >= -20 && yData <= 20) {
 				selectedAlteration = 1;
@@ -285,25 +272,25 @@ int main(void){
 
 			// Call edge alteration if needed
 			if (topLeftFlag == 2 || topRightFlag == 2 || bottomLeftFlag == 2 || bottomRightFlag == 2) {
-				flip(quadImageOrigin, quadImageAlteration2, col, row);
+				flip(quadImageOrigin, quadImageAlteration2, quadCol	, quadRow);
 			}
 
 			// Call image blur if needed
 			if (topLeftFlag == 3 || topRightFlag == 3 || bottomLeftFlag == 3 || bottomRightFlag == 3) {
-				convolve(quadImageOrigin, quadImageAlteration3, kernelBlur, col, row);
+				convolve(quadImageOrigin, quadImageAlteration3, kernelBlur, quadCol, quadRow);
 			}
 
 			// Call edge detection if needed
 			if (topLeftFlag == 4 || topRightFlag == 4 || bottomLeftFlag == 4 || bottomRightFlag == 4) {
-				convolve(quadImageOrigin, edgeX, kernelEdgeX, col, row);
-				convolve(quadImageOrigin, edgeY, kernelEdgeY, col, row);
+				convolve(quadImageOrigin, edgeX, kernelEdgeX, quadCol, quadRow);
+				convolve(quadImageOrigin, edgeY, kernelEdgeY, quadCol, quadRow);
 				// Combine X and Y Sobel filters and checking threshold
-				for (int i = 1; i < row - 1; i++){
-					for (int j = 1; j < col - 1; j++){
-						quadImageAlteration4[j+i*col] = abs(edgeX[j+i*col]) + abs(edgeY[j+i*col]);
+				for (int i = 1; i < quadRow - 1; i++){
+					for (int j = 1; j < quadCol - 1; j++){
+						quadImageAlteration4[j+i*quadCol] = abs(edgeX[j+i*quadCol]) + abs(edgeY[j+i*quadCol]);
 
-						if (quadImageAlteration4[j+i*col] < thresholdValue){
-							quadImageAlteration4[j+i*col] = 0;
+						if (quadImageAlteration4[j+i*quadCol] < thresholdValue){
+							quadImageAlteration4[j+i*quadCol] = 0;
 						}
 					}
 				}
@@ -356,9 +343,9 @@ int main(void){
 			// Write quad frames to display processor
 			altera_avalon_mutex_lock(mutex, 1);
 
-			for (int i = 0; i < row; i++) {
-				for (int j = 0; j < col; j++) {
-					idx = j+i*col;
+			for (int i = 0; i < quadRow; i++) {
+				for (int j = 0; j < quadCol; j++) {
+					idx = j+i*quadCol;
 					IOWR(processedTopLeft, idx, quadImageTopLeft[idx]);
 					IOWR(processedTopRight, idx, quadImageTopRight[idx]);
 					IOWR(processedBottomLeft, idx, quadImageBottomLeft[idx]);

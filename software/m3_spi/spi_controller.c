@@ -58,8 +58,8 @@ int *doubleTapFlagS = (int*)0x03500000;
 int *keyFlagS = (int*)0x03500004;
 int *swFlagS = (int*)0x03500008;
 int *yDataS = (int*)0x0350000C;
-alt_u8 *singleFrameS = (alt_u8*)0x03500010;
-alt_u8 *quadFrameS = (alt_u8*)0x03512C10;
+alt_u16 *singleFrameS = (alt_u16*)0x03500010;
+alt_u16 *quadFrameS = (alt_u16*)0x03525810;
 
 // Global interrupt flags
 volatile int doubleTapFlag = 0;
@@ -77,7 +77,7 @@ alt_u8 gyro_config[CONFIG_LENGHT] = {
     ACT_INACT_CTL, 0xff,
     THRESH_FF, 0x09,
     TIME_FF, 0x46,
-    TAP_THRES, 0x10,
+    TAP_THRES, 0x12,
     TAP_AXES, 0x07,
     LATENT, 0x85,
     DUR, 0x40,
@@ -93,7 +93,8 @@ void gyro_isr(void * context) {
     // clear the interrupt
 	IOWR_ALTERA_AVALON_PIO_EDGE_CAP(GSENSOR_INT2_BASE,0);
 	IOWR(GSENSOR_INT2_BASE, 3, 0);
-	doubleTapFlag = (doubleTapFlag + 1) % 4;
+	//doubleTapFlag = (doubleTapFlag + 1) % 4;
+	doubleTapFlag = 0;
 }
 
 // key interrupt handler
@@ -129,14 +130,16 @@ int main(void) {
 	// Defining variables
 	int singleCol = 320;
 	int singleRow = 240;
-	int col = 160;
-	int row = 120;
-	int quadFrameSize = row * col;
-	int singleFrameSize = singleCol*singleRow;
-	alt_u8 camModeQuad = 0x12;
-	alt_u8 camModeSingle = 0x10;
-	alt_u8 *singleImage = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageOrigin = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	int quadCol = 160;
+	int quadRow = 120;
+	int quadFrameSize = quadRow * quadCol * 1.5;
+	int singleFrameSize = singleCol * singleRow * 1.5;
+	alt_u8 camModeQuad = 0x17;
+	alt_u8 camModeSingle = 0x15;
+	alt_u8 *singleImage = (alt_u8 *)malloc(singleFrameSize);
+
+
+	alt_u8 *quadImageOrigin = (alt_u8 *)malloc(quadFrameSize);
 	int deviceSelect = 0;
 	int bufferSize = 1;
 	int flag = 0;
@@ -237,19 +240,59 @@ int main(void) {
 	    IOWR(yDataS,0,yData);
 	    // Write frames
 	    if (keyFlag == 0){
-	    	for (int i = 0; i < singleRow; i++) {
-				for (int j = 0; j < singleCol; j++) {
-					idx = j+i*singleCol;
-					IOWR(singleFrameS, idx, singleImage[idx]);
+	    	int spiIdx = -1;
+				for (int i = 0; i < singleRow; i++) {
+					for (int j = 0; j < singleCol; j += 2) {
+						alt_u8 byte1 = singleImage[spiIdx++];
+						alt_u8 byte2 = singleImage[spiIdx++];
+						alt_u8 byte3 = singleImage[spiIdx++];
+
+						// Pixel 1
+						alt_u8 r1 = (byte1 & 0xF0) >> 4;
+						alt_u8 g1 = (byte1 & 0x0F);
+						alt_u8 b1 = (byte2 & 0xF0) >> 4;
+						alt_u16 pixel1 = (r1 << 8) | (g1 << 4) | b1;
+
+						// Pixel 2
+						alt_u8 r2 = (byte2 & 0x0F);
+						alt_u8 g2 = (byte3 & 0xF0) >> 4;
+						alt_u8 b2 = (byte3 & 0x0F);
+						alt_u16 pixel2 = (r2 << 8) | (g2 << 4) | b2;
+
+						int idx1 = j + i * singleCol;
+						int idx2 = idx1 + 1;
+
+						IOWR((alt_u16*)singleFrameS, idx1, pixel1);
+						IOWR((alt_u16*)singleFrameS, idx2, pixel2);
+					}
 				}
-			}
 	    } else if (keyFlag == 1){
-	    	for (int i = 0; i < row; i++) {
-				for (int j = 0; j < col; j++) {
-					idx = j+i*col;
-					IOWR(quadFrameS, idx, quadImageOrigin[idx]);
+	    	int spiIdx = -1;
+				for (int i = 0; i < quadRow; i++) {
+					for (int j = 0; j < quadCol; j += 2) {
+						alt_u8 byte1 = quadImageOrigin[spiIdx++];
+						alt_u8 byte2 = quadImageOrigin[spiIdx++];
+						alt_u8 byte3 = quadImageOrigin[spiIdx++];
+
+						// Pixel 1
+						alt_u8 r1 = (byte1 & 0xF0) >> 4;
+						alt_u8 g1 = (byte1 & 0x0F);
+						alt_u8 b1 = (byte2 & 0xF0) >> 4;
+						alt_u16 pixel1 = (r1 << 8) | (g1 << 4) | b1;
+
+						// Pixel 2
+						alt_u8 r2 = (byte2 & 0x0F);
+						alt_u8 g2 = (byte3 & 0xF0) >> 4;
+						alt_u8 b2 = (byte3 & 0x0F);
+						alt_u16 pixel2 = (r2 << 8) | (g2 << 4) | b2;
+
+						int idx1 = j + i * quadCol;
+						int idx2 = idx1 + 1;
+
+
+
+					}
 				}
-			}
 	    }
 	    // Unlock mutex
 	    altera_avalon_mutex_unlock(mutex);
