@@ -240,27 +240,22 @@ int main(void) {
 	    IOWR(swFlagS,0,swFlag);
 	    IOWR(yDataS,0,yData);
 	    // Write frames
-	    if (keyFlag == 0) { 		// Receiving the frame (Single)
-	    			alt_avalon_spi_command(
-	    				SPI_0_BASE, 		// SPI base
-	    				deviceSelect, 		// sub device (slave select)
-	    				bufferSize, 		// Transmit buffer size (1 bit command)
-	    				&camModeSingle,		// Setting data capture mode
-	    				singleFrameSize,	// Size of receive buffer
-	    				singleImage,  		// Saving camera data to destination buffer
-	    				flag				// flags: told to set to 0
-	    			);
-	    		} else if (keyFlag == 1) { 	// Receiving the frame (Quad)
-	    			alt_avalon_spi_command(
-	    				SPI_0_BASE, 		// SPI base
-	    				deviceSelect, 		// sub device (slave select)
-	    				bufferSize, 		// Transmit buffer size (1 bit command)
-	    				&camModeQuad,		// Setting data capture mode
-	    				quadFrameSize,  	// Size of receive buffer
-	    				quadImageOrigin,	// Saving camera data to destination buffer
-	    				flag				// flags: told to set to 0
-	    			);
+	    if (keyFlag == 0){
 
+	    	for (int i = 0; i < singleFrameSize; i++) {
+	    		singleImage[2*i]     = ((singleImagePacked[i] >> 4) & 0x0F) << 4;
+	    		singleImage[2*i + 1] = ( singleImagePacked[i] & 0x0F) << 4;
+				IOWR(singleFrameS, i*2, singleImage[i*2]);
+				IOWR(singleFrameS, i*2+1, singleImage[i*2+1]);
+			}
+	    } else if (keyFlag == 1){
+	    	for (int i = 0; i < quadFrameSize; i++) {
+	    		quadImageOrigin[2*i] = ((quadImagePacked[i] >> 4) & 0x0F) << 4;
+	    		quadImageOrigin[2*i + 1] = (quadImagePacked[i] & 0x0F) << 4;
+				IOWR(quadFrameS, i*2, quadImageOrigin[i*2]);
+				IOWR(quadFrameS, i*2+1, quadImageOrigin[i*2+1]);
+			}
+	    }
 
 
 	    // Unlock mutex
