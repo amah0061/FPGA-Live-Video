@@ -54,7 +54,9 @@ module m3_complete (
 
 // Define wires
 wire vga_clk;
-wire [3:0] data_raw, data_buff;
+wire [15:0] data_raw; 
+wire [15:0] data_buff;
+wire [11:0] pixel_rgb;
 wire [16:0] read_address, write_address;
 wire [31:0] usec_count;
 wire [23:0] hex0;
@@ -92,7 +94,7 @@ VGA_clk VGA_clk_inst(
 );
 
 // Instantiate pixel buffer
-Pixel_Buffer pixel_buffer_inst(
+Pixel_Buffer_RGB pixel_buffer_inst(
 .clock(vga_clk),
 .data(data_raw),
 .rdaddress(read_address),
@@ -103,7 +105,7 @@ Pixel_Buffer pixel_buffer_inst(
 
 // Instantiate vga_controller
 vga_controller vga_controller_inst(
-.VGA_DATA(data_buff),
+.VGA_DATA(pixel_rgb),
 .VGA_CLK(vga_clk),
 .VGA_ADDR(read_address),
 .VGA_R(VGA_R),
@@ -185,5 +187,8 @@ assign HEX0 = hex0[7:0];
 assign HEX1 = hex0[15:8];
 assign HEX2 = hex0[23:16];
 assign HEX3 = hex3[7:0];
+
+// Pixel Buffer
+assign pixel_rgb = data_buff[11:0];
 
 endmodule
