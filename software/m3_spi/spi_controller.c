@@ -144,7 +144,8 @@ int main(void) {
 	int bufferSize = 1;
 	int flag = 0;
 	int camReady;
-	int idx;
+	int id_packed;
+	int id_single;
 
 	// mutex
 	alt_mutex_dev *mutex = altera_avalon_mutex_open("/dev/mutex_0");
@@ -275,6 +276,8 @@ int main(void) {
 				IOWR(quadFrameS, i, quadImage[i]);
 			}
 	    }
+
+
 	    // Unlock mutex
 	    altera_avalon_mutex_unlock(mutex);
 
@@ -298,5 +301,3 @@ int main(void) {
 		}
 	}
 }
-
-
