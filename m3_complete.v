@@ -92,7 +92,7 @@ VGA_clk VGA_clk_inst(
 );
 
 // Instantiate pixel buffer
-Pixel_Buffer_RGB pixel_buffer_inst(
+Pixel_Buffer pixel_buffer_inst(
 .clock(vga_clk),
 .data(data_raw),
 .rdaddress(read_address),
@@ -103,7 +103,7 @@ Pixel_Buffer_RGB pixel_buffer_inst(
 
 // Instantiate vga_controller
 vga_controller vga_controller_inst(
-.VGA_DATA(pixel_rgb),
+.VGA_DATA(data_buff),
 .VGA_CLK(vga_clk),
 .VGA_ADDR(read_address),
 .VGA_R(VGA_R),
