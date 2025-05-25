@@ -20,11 +20,11 @@
 
 // define shared buffer variables:
 int *keyFlagDisplay = (int*)0x03517710;
-alt_u8 *processedSingleFrameS = (alt_u8*)0x03517714;
-alt_u8 *processedTopLeft = (alt_u8*)0x0352A314;
-alt_u8 *processedTopRight = (alt_u8*)0x0353CF14;
-alt_u8 *processedBottomLeft = (alt_u8*)0x0354FB14;
-alt_u8 *processedBottomRight = (alt_u8*)0x03562714;
+alt_u16 *processedSingleFrameS = (alt_u16*)0x03517714;
+alt_u16 *processedTopLeft = (alt_u16*)0x0352A314;
+alt_u16 *processedTopRight = (alt_u16*)0x0353CF14;
+alt_u16 *processedBottomLeft = (alt_u16*)0x0354FB14;
+alt_u16 *processedBottomRight = (alt_u16*)0x03562714;
 
 // Define volatile ints
 volatile int commFlag = 0;
@@ -46,11 +46,11 @@ int main(void){
 	int totalCol = 320;
 	int quadFrameSize = row * col;
 	int singleFrameSize = singleCol*singleRow;
-	alt_u8 *singleImage = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageTopLeft = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageTopRight = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageBottomLeft = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageBottomRight = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u16 *singleImage = (alt_u16 *)malloc(singleFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageTopLeft = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageTopRight = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageBottomLeft = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageBottomRight = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
 	int address;
 	int pixelAddress;
 	int topLeftAddress;
@@ -66,11 +66,11 @@ int main(void){
 	int d0, d1, d2, d3;
 	alt_u8 hex3, hex2, hex1, hex0;
 	alt_u32 hexHigh, hexLow;
-	alt_u8 pixelTopLeft;
-	alt_u8 pixelTopRight;
-	alt_u8 pixelBottomLeft;
-	alt_u8 pixelBottomRight;
-	alt_u8 pixel;
+	alt_u16 pixelTopLeft;
+	alt_u16 pixelTopRight;
+	alt_u16 pixelBottomLeft;
+	alt_u16 pixelBottomRight;
+	alt_u16 pixel;
 	int keyFlag;
 	int idx;
 
@@ -217,3 +217,5 @@ int main(void){
 
 	}
 }
+
+

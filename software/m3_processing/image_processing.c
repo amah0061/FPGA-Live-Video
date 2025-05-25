@@ -27,11 +27,11 @@ int *yDataS = (int*)0x0350000C;
 alt_u8 *singleFrameS = (alt_u8*)0x03500010;
 alt_u8 *quadFrameS = (alt_u8*)0x03512C10;
 int *keyFlagDisplay = (int*)0x03517710;
-alt_u8 *processedSingleFrameS = (alt_u8*)0x03517714;
-alt_u8 *processedTopLeft = (alt_u8*)0x0352A314;
-alt_u8 *processedTopRight = (alt_u8*)0x0353CF14;
-alt_u8 *processedBottomLeft = (alt_u8*)0x0354FB14;
-alt_u8 *processedBottomRight = (alt_u8*)0x03562714;
+alt_u16 *processedSingleFrameS = (alt_u16*)0x03517714;
+alt_u16 *processedTopLeft = (alt_u16*)0x0352A314;
+alt_u16 *processedTopRight = (alt_u16*)0x0353CF14;
+alt_u16 *processedBottomLeft = (alt_u16*)0x0354FB14;
+alt_u16 *processedBottomRight = (alt_u16*)0x03562714;
 
 // Define volatile ints
 volatile int comm0Flag = 0;
@@ -54,8 +54,8 @@ void comm_display_isr () {
 // Image flipping algorithm
 void flip(void *inputImage, void *outputImage, int width, int height) {
 	// Defining variables
-	alt_u8 *in = (alt_u8 *)inputImage;
-	alt_u8 *out = (alt_u8 *)outputImage;
+	alt_u16 *in = (alt_u16 *)inputImage;
+	alt_u16 *out = (alt_u16 *)outputImage;
 	for (int i = 0; i < height; i++){
         for (int j = 0; j < width; j++) {
             out[j+i*width] = in[(width-1-j)+(height-1-i)*width];
@@ -67,8 +67,8 @@ void flip(void *inputImage, void *outputImage, int width, int height) {
 void convolve(void *inputImage, void *outputImage, void *kernel, int width, int height) {
 
 	// Defining variables
-	alt_u8 *in = (alt_u8 *)inputImage;
-	alt_8 *out = (alt_8 *)outputImage;
+	alt_u16 *in = (alt_u16 *)inputImage;
+	alt_16 *out = (alt_16 *)outputImage;
 	int runningValue;
 	int *k = (int *)kernel;
     int kernelSum = 0;
@@ -110,22 +110,37 @@ int main(void){
 	int singleRow = 240;
 	int col = 160;
 	int row = 120;
+	int quadFrameSizeOrigin = row * col * 12 / 8;
+	int singleFrameSizeOrigin = singleCol*singleRow*12/8;
 	int quadFrameSize = row * col;
 	int singleFrameSize = singleCol*singleRow;
-	alt_u8 *singleImage = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
-	alt_u8 *singleImageDisplay = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
-	alt_u8 *singleImageAlteration1 = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
-	alt_8  *edgeX = (alt_8 *)malloc(singleFrameSize * sizeof(alt_8));
-	alt_8  *edgeY = (alt_8 *)malloc(singleFrameSize * sizeof(alt_8));
-	alt_u8 *quadImageOrigin = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageAlteration1 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageAlteration2 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageAlteration3 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageAlteration4 = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageTopLeft = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageTopRight = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageBottomLeft = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
-	alt_u8 *quadImageBottomRight = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
+	alt_u16 *singleImageOrigin = (alt_u16 *)malloc(singleFrameSizeOrigin * sizeof(alt_u16));
+	alt_u16 *singleImageR = (alt_u16 *)malloc(singleFrameSize * sizeof(alt_u16));
+	alt_u16 *singleImageG = (alt_u16 *)malloc(singleFrameSize * sizeof(alt_u16));
+	alt_u16 *singleImageB = (alt_u16 *)malloc(singleFrameSize * sizeof(alt_u16));
+	alt_u16 *singleImage = (alt_u16 *)malloc(singleFrameSize * sizeof(alt_u16));
+	alt_u16 *singleImageDisplay = (alt_u16 *)malloc(singleFrameSize * sizeof(alt_u16));
+	alt_u16 *singleImageAlteration1 = (alt_u16 *)malloc(singleFrameSize * sizeof(alt_u16));
+	alt_u16 *singleImageAlteration2 = (alt_u16 *)malloc(singleFrameSize * sizeof(alt_u16));
+	alt_u16 *singleImageAlteration3 = (alt_u16 *)malloc(singleFrameSize * sizeof(alt_u16));
+	alt_16  *edgeX = (alt_16 *)malloc(singleFrameSize * sizeof(alt_16));
+	alt_16  *edgeY = (alt_16 *)malloc(singleFrameSize * sizeof(alt_16));
+	alt_u16 *quadImageOrigin = (alt_u16 *)malloc(quadFrameSizeOrigin * sizeof(alt_u16));
+	alt_u16 *quadImage = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageR = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageG = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageB = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageAlterationR = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageAlterationG = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageAlterationB = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageAlteration1 = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageAlteration2 = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageAlteration3 = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageAlteration4 = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageTopLeft = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageTopRight = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageBottomLeft = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
+	alt_u16 *quadImageBottomRight = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
 	int topLeftFlag = 1;
 	int topRightFlag = 1;
 	int bottomLeftFlag = 1;
@@ -140,6 +155,15 @@ int main(void){
 	int keyFlag;
 	int yData;
 	int idx;
+	alt_u8 by0;
+	alt_u8 by1;
+	alt_u8 by2;
+	alt_u8 r1;
+	alt_u8 r2;
+	alt_u8 g1;
+	alt_u8 g2;
+	alt_u8 b1;
+	alt_u8 b2;
 
 	// mutex
 	alt_mutex_dev *mutex = altera_avalon_mutex_open("/dev/mutex_0");
@@ -173,18 +197,12 @@ int main(void){
 		IOWR(keyFlagDisplay,0,keyFlag);
 		// Read images
 		if (keyFlag == 0){
-			for (int i = 0; i < singleRow; i++) {
-			    for (int j = 0; j < singleCol; j++) {
-				    idx = j+i*singleCol;
-				    singleImage[idx] = IORD(singleFrameS, idx);
-			    }
+			for (int i = 0; i < singleFrameSizeOrigin; i++) {
+				singleImageOrigin[i] = IORD(singleFrameS, i);
 		    }
 		} else if (keyFlag == 1){
-			for (int i = 0; i < row; i++) {
-				for (int j = 0; j < col; j++) {
-					idx = j+i*col;
-					quadImageOrigin[idx] = IORD(quadFrameS, idx);
-				}
+			for (int i = 0; i < quadFrameSizeOrigin; i++) {
+				quadImageOrigin[i] = IORD(quadFrameS, i);
 			}
 		}
 		// Unluck mutex
@@ -195,11 +213,24 @@ int main(void){
 		IOWR(P_PROCESSING0_OUT_BASE,0,0);
 
 		if (keyFlag == 0) {
-			// Shift each pixel 4 bits to the right to get rid of junk
-			for (int i = 0; i < singleRow; i++){
-				for (int j = 0; j < singleCol; j++){
-					singleImage[j+i*singleCol] = singleImage[j+i*singleCol]>>4;
-				}
+			// Unpack data from camera
+			for (int i = 0, p = 0; i < singleFrameSizeOrigin; i += 3, p += 2) {
+				// Gather 3 bytes for 2 pixels
+				by0 = singleImageOrigin[i];
+				by1 = singleImageOrigin[i + 1];
+				by2 = singleImageOrigin[i + 2];
+
+				// Unpack and store first pixel
+				r1 = by0 >> 4;
+				g1 = by0 & 0x0F;
+				b1 = by1 >> 4;
+				singleImage[p+1] = (r1 << 8) | (g1 << 4) | b1;
+
+				// Unpack and store second pixel
+				r2 = by1 & 0x0F;
+				g2 = by2 >> 4;
+				b2 = by2 & 0x0F;
+				singleImage[p] = (r2 << 8) | (g2 << 4) | b2;
 			}
 			// image alterations
 			if (doubleTapFlag == 0) {			//Default image
@@ -210,12 +241,28 @@ int main(void){
 				singleImageDisplay = singleImageAlteration1;
 
 			} else if (doubleTapFlag == 2) {	//Blurred image
-				convolve(singleImage, singleImageAlteration1, kernelBlur, singleCol, singleRow);
-				singleImageDisplay = singleImageAlteration1;
+				// Split into RGB
+				for (int i = 0; i < singleFrameSize; i++){
+					singleImageR[i] = (singleImage[i] >> 8) & 0xf;
+					singleImageG[i] = (singleImage[i] >> 4) & 0xf;
+					singleImageB[i] = singleImage[i] & 0xf;
+				}
+				// Blur each colour
+				convolve(singleImageR, singleImageAlteration1, kernelBlur, singleCol, singleRow);
+				convolve(singleImageG, singleImageAlteration2, kernelBlur, singleCol, singleRow);
+				convolve(singleImageB, singleImageAlteration3, kernelBlur, singleCol, singleRow);
+				// Stitch back together
+				for (int i = 0; i < singleFrameSize; i++){
+					singleImageDisplay[i] = (singleImageAlteration1[i] << 8) | (singleImageAlteration2[i] << 4) | singleImageAlteration3[i];
+				}
 
 			} else if (doubleTapFlag == 3) {	//Edge Detection image
-				convolve(singleImage, edgeX, kernelEdgeX, singleCol, singleRow);
-				convolve(singleImage, edgeY, kernelEdgeY, singleCol, singleRow);
+				// Convert back to greyscale
+				for (int i = 0; i < singleFrameSize; i++){
+					singleImageAlteration2[i] = 0.299*((singleImage[i] >> 8) & 0xf) + 0.587*((singleImage[i] >> 4) & 0xf) + 0.114*(singleImage[i] & 0xf);
+				}
+				convolve(singleImageAlteration2, edgeX, kernelEdgeX, singleCol, singleRow);
+				convolve(singleImageAlteration2, edgeY, kernelEdgeY, singleCol, singleRow);
 
 				// Combine X and Y Sobel filters and checking threshold
 				for (int i = 1; i < singleRow - 1; i++){
@@ -224,6 +271,8 @@ int main(void){
 
 						if (singleImageAlteration1[j+i*singleCol] < thresholdValue){
 							singleImageAlteration1[j+i*singleCol] = 0;
+						} else {
+							singleImageAlteration1[j+i*singleCol] = 0xfff;
 						}
 					}
 				}
@@ -244,11 +293,24 @@ int main(void){
 			altera_avalon_mutex_unlock(mutex);
 
 		} else if (keyFlag == 1) {
-			// Shift each pixel 4 bits to the right to get rid of junk
-			for (int i = 0; i < row; i++){
-				for (int j = 0; j < col; j++){
-					quadImageOrigin[j+i*col] = quadImageOrigin[j+i*col]>>4;
-				}
+			// Unpack data from camera
+			for (int i = 0, p = 0; i < quadFrameSizeOrigin; i += 3, p += 2) {
+				// Gather 3 bytes for 2 pixels
+				by0 = quadImageOrigin[i];
+				by1 = quadImageOrigin[i + 1];
+				by2 = quadImageOrigin[i + 2];
+
+				// Unpack and store first pixel
+				r1 = by0 >> 4;
+				g1 = by0 & 0x0F;
+				b1 = by1 >> 4;
+				quadImage[p+1] = (r1 << 8) | (g1 << 4) | b1;
+
+				// Unpack and store second pixel
+				r2 = by1 & 0x0F;
+				g2 = by2 >> 4;
+				b2 = by2 & 0x0F;
+				quadImage[p] = (r2 << 8) | (g2 << 4) | b2;
 			}
 
 			// Select alteration based on y position
@@ -280,23 +342,40 @@ int main(void){
 
 			// Call original image if needed
 			if (topLeftFlag == 1 || topRightFlag == 1 || bottomLeftFlag == 1 || bottomRightFlag == 1) {
-				quadImageAlteration1 = quadImageOrigin;
+				quadImageAlteration1 = quadImage;
 			}
 
 			// Call edge alteration if needed
 			if (topLeftFlag == 2 || topRightFlag == 2 || bottomLeftFlag == 2 || bottomRightFlag == 2) {
-				flip(quadImageOrigin, quadImageAlteration2, col, row);
+				flip(quadImage, quadImageAlteration2, col, row);
 			}
 
 			// Call image blur if needed
 			if (topLeftFlag == 3 || topRightFlag == 3 || bottomLeftFlag == 3 || bottomRightFlag == 3) {
-				convolve(quadImageOrigin, quadImageAlteration3, kernelBlur, col, row);
+				// Split into RGB
+				for (int i = 0; i < quadFrameSize; i++){
+					quadImageR[i] = (quadImage[i] >> 8) & 0xf;
+					quadImageG[i] = (quadImage[i] >> 4) & 0xf;
+					quadImageB[i] = quadImage[i] & 0xf;
+				}
+				// Blur each colour
+				convolve(quadImageR, quadImageAlterationR, kernelBlur, col, row);
+				convolve(quadImageG, quadImageAlterationG, kernelBlur, col, row);
+				convolve(quadImageB, quadImageAlterationB, kernelBlur, col, row);
+				// Stitch back together
+				for (int i = 0; i < quadFrameSize; i++){
+					quadImageAlteration3[i] = (quadImageAlterationR[i] << 8) | (quadImageAlterationG[i] << 4) | quadImageAlterationB[i];
+				}
 			}
 
 			// Call edge detection if needed
 			if (topLeftFlag == 4 || topRightFlag == 4 || bottomLeftFlag == 4 || bottomRightFlag == 4) {
-				convolve(quadImageOrigin, edgeX, kernelEdgeX, col, row);
-				convolve(quadImageOrigin, edgeY, kernelEdgeY, col, row);
+				// Convert back to greyscale
+				for (int i = 0; i < quadFrameSize; i++){
+					quadImageAlterationR[i] = 0.299*((quadImage[i] >> 8) & 0xf) + 0.587*((quadImage[i] >> 4) & 0xf) + 0.114*(quadImage[i] & 0xf);
+				}
+				convolve(quadImageAlterationR, edgeX, kernelEdgeX, col, row);
+				convolve(quadImageAlterationR, edgeY, kernelEdgeY, col, row);
 				// Combine X and Y Sobel filters and checking threshold
 				for (int i = 1; i < row - 1; i++){
 					for (int j = 1; j < col - 1; j++){
@@ -304,6 +383,8 @@ int main(void){
 
 						if (quadImageAlteration4[j+i*col] < thresholdValue){
 							quadImageAlteration4[j+i*col] = 0;
+						} else {
+							quadImageAlteration4[j+i*col] = 0xfff;
 						}
 					}
 				}
@@ -383,3 +464,5 @@ int main(void){
 
 	}
 }
+
+

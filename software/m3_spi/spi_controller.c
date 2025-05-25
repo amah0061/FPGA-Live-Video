@@ -67,6 +67,7 @@ volatile int keyFlag = 0;
 volatile int swFlag = 0;
 volatile int commFlagProcessing = 0;
 volatile int commFlagDisplay = 1;
+volatile int frameOne = 1;
 
 // Configure the gyro
 alt_u8 gyro_config[CONFIG_LENGHT] = {
@@ -101,6 +102,7 @@ void key_isr () {
 	IOWR_ALTERA_AVALON_PIO_EDGE_CAP(KEY_BASE,0);
 	IOWR(KEY_BASE, 3, 0);
 	keyFlag = 1 - keyFlag;
+	frameOne = 1;
 }
 
 // switch interrupt handler
@@ -131,14 +133,13 @@ int main(void) {
 	int singleRow = 240;
 	int col = 160;
 	int row = 120;
-	int quadFrameSize = (row * col) * 0.5;
-	int singleFrameSize = (singleCol*singleRow) * 0.5;
-	alt_u8 camModeQuad = 0x16;
-	alt_u8 camModeSingle = 0x14;
-	alt_u8 *singleImagePacked = (alt_u8 *)malloc((singleFrameSize) * sizeof(alt_u8));
-	alt_u8 *singleImage = (alt_u8 *)malloc(singleFrameSize * 2 * sizeof(alt_u8));
-	alt_u8 *quadImagePacked = (alt_u8 *)malloc((quadFrameSize) * sizeof(alt_u8));
-	alt_u8 *quadImageOrigin = (alt_u8 *)malloc(quadFrameSize * 2 * sizeof(alt_u8));
+	int quadFrameSize = row * col * 12 / 8;
+	int singleFrameSize = singleCol*singleRow*12/8;
+	alt_u8 camModeQuad = 0x17;
+	alt_u8 camModeSingle = 0x15;
+	alt_u8 camModeConstant = 0x0;
+	alt_u8 *singleImage = (alt_u8 *)malloc(singleFrameSize * sizeof(alt_u8));
+	alt_u8 *quadImage = (alt_u8 *)malloc(quadFrameSize * sizeof(alt_u8));
 	int deviceSelect = 0;
 	int bufferSize = 1;
 	int flag = 0;
@@ -198,29 +199,55 @@ int main(void) {
 		alt_avalon_spi_command(SPI_0_BASE, 1, 1, &gyro_data_in, 1, &regData, 0x0);
 
 		if (keyFlag == 0) { 		// Receiving the frame (Single)
-			alt_avalon_spi_command(
-				SPI_0_BASE,
-				deviceSelect,
-				bufferSize,
-				&camModeSingle,
-				singleFrameSize,
-				singleImagePacked,
-				flag
-			);
-
+			if (frameOne == 1){
+				alt_avalon_spi_command(
+					SPI_0_BASE, 		// SPI base
+					deviceSelect, 		// sub device (slave select)
+					bufferSize, 		// Transmit buffer size (1 bit command)
+					&camModeSingle,		// Setting data capture mode
+					singleFrameSize,	// Size of receive buffer
+					singleImage,  		// Saving camera data to destination buffer
+					flag				// flags: told to set to 0
+				);
+				frameOne = 0;
+			} else {
+				alt_avalon_spi_command(
+					SPI_0_BASE, 		// SPI base
+					deviceSelect, 		// sub device (slave select)
+					NULL, 				// Transmit buffer size (1 bit command)
+					NULL,				// Setting data capture mode
+					singleFrameSize,	// Size of receive buffer
+					singleImage,  		// Saving camera data to destination buffer
+					flag				// flags: told to set to 0
+				);
+			}
 		} else if (keyFlag == 1) { 	// Receiving the frame (Quad)
-			alt_avalon_spi_command(
-				SPI_0_BASE,
-				deviceSelect,
-				bufferSize,
-				&camModeQuad,
-				quadFrameSize,
-				quadImagePacked,
-				flag
-			);
-
-			// Read y position of DE-10
-			alt_avalon_spi_command(SPI_0_BASE, 1, 1, &readY, 2, &yData, 0x0);
+			if (frameOne == 1){
+				alt_avalon_spi_command(
+					SPI_0_BASE, 		// SPI base
+					deviceSelect, 		// sub device (slave select)
+					bufferSize, 		// Transmit buffer size (1 bit command)
+					&camModeQuad,		// Setting data capture mode
+					quadFrameSize,  	// Size of receive buffer
+					quadImage,			// Saving camera data to destination buffer
+					flag				// flags: told to set to 0
+				);
+				frameOne = 0;
+				// Read y position of DE-10
+				alt_avalon_spi_command(SPI_0_BASE, 1, 1, &readY, 2, &yData, 0x0);
+			} else {
+				alt_avalon_spi_command(
+					SPI_0_BASE, 		// SPI base
+					deviceSelect, 		// sub device (slave select)
+					0, 					// Transmit buffer size (1 bit command)
+					NULL,				// Setting data capture mode
+					quadFrameSize,  	// Size of receive buffer
+					quadImage,			// Saving camera data to destination buffer
+					flag				// flags: told to set to 0
+				);
+				// Read y position of DE-10
+				alt_avalon_spi_command(SPI_0_BASE, 1, 1, &readY, 2, &yData, 0x0);
+			}
 		}
 
 		// Reset camera to be in a state to not except data
@@ -241,19 +268,12 @@ int main(void) {
 	    IOWR(yDataS,0,yData);
 	    // Write frames
 	    if (keyFlag == 0){
-
 	    	for (int i = 0; i < singleFrameSize; i++) {
-	    		singleImage[2*i]     = ((singleImagePacked[i] >> 4) & 0x0F) << 4;
-	    		singleImage[2*i + 1] = ( singleImagePacked[i] & 0x0F) << 4;
-				IOWR(singleFrameS, i*2, singleImage[i*2]);
-				IOWR(singleFrameS, i*2+1, singleImage[i*2+1]);
+				IOWR(singleFrameS, i, singleImage[i]);
 			}
 	    } else if (keyFlag == 1){
 	    	for (int i = 0; i < quadFrameSize; i++) {
-	    		quadImageOrigin[2*i] = ((quadImagePacked[i] >> 4) & 0x0F) << 4;
-	    		quadImageOrigin[2*i + 1] = (quadImagePacked[i] & 0x0F) << 4;
-				IOWR(quadFrameS, i*2, quadImageOrigin[i*2]);
-				IOWR(quadFrameS, i*2+1, quadImageOrigin[i*2+1]);
+				IOWR(quadFrameS, i, quadImage[i]);
 			}
 	    }
 
