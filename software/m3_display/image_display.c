@@ -19,13 +19,12 @@
 #include "altera_avalon_mutex.h"
 
 // define shared buffer variables:
-int *keyFlagDisplay = (int*)0x0352EE10;
-alt_u16 *processedSingleFrameS = (alt_u16*)0x0352EE14;
-alt_u16 *processedTopLeft = (alt_u16*)0x03554614;
-alt_u16 *processedTopRight = (alt_u16*)0x03567214;
-alt_u16 *processedBottomLeft = (alt_u16*)0x03579E14;
-alt_u16 *processedBottomRight = (alt_u16*)0x0358CA14;
-
+int *keyFlagDisplay = (int*)0x03517710;
+alt_u16 *processedSingleFrameS = (alt_u16*)0x03517714;
+alt_u16 *processedTopLeft = (alt_u16*)0x0352A314;
+alt_u16 *processedTopRight = (alt_u16*)0x0353CF14;
+alt_u16 *processedBottomLeft = (alt_u16*)0x0354FB14;
+alt_u16 *processedBottomRight = (alt_u16*)0x03562714;
 
 // Define volatile ints
 volatile int commFlag = 0;
@@ -42,10 +41,10 @@ int main(void){
 	// Defining variables
 	int singleCol = 320;
 	int singleRow = 240;
-	int quadCol = 160;
-	int quadRow = 120;
+	int col = 160;
+	int row = 120;
 	int totalCol = 320;
-	int quadFrameSize = quadRow * quadCol;
+	int quadFrameSize = row * col;
 	int singleFrameSize = singleCol*singleRow;
 	alt_u16 *singleImage = (alt_u16 *)malloc(singleFrameSize * sizeof(alt_u16));
 	alt_u16 *quadImageTopLeft = (alt_u16 *)malloc(quadFrameSize * sizeof(alt_u16));
@@ -121,9 +120,9 @@ int main(void){
 				}
 			}
 		} else if (keyFlag == 1){
-			for (int i = 0; i < quadRow; i++) {
-				for (int j = 0; j < quadCol; j++) {
-					idx = j+i*quadCol;
+			for (int i = 0; i < row; i++) {
+				for (int j = 0; j < col; j++) {
+					idx = j+i*col;
 					quadImageTopLeft[idx] = IORD(processedTopLeft, idx);
 					quadImageTopRight[idx] = IORD(processedTopRight, idx);
 					quadImageBottomLeft[idx] = IORD(processedBottomLeft, idx);
@@ -157,13 +156,13 @@ int main(void){
 		} else if (keyFlag == 1) {
 
 			// Now write pixels for all quadrants
-			for (int i = 0; i < quadRow; i++) {
-				for (int j = 0; j < quadCol; j++) {
-					pixelAddress = j + i * quadCol;
+			for (int i = 0; i < row; i++) {
+				for (int j = 0; j < col; j++) {
+					pixelAddress = j + i * col;
 					topLeftAddress = j + i * totalCol;
-					topRightAddress = (j + quadCol) + i * totalCol;
-					bottomLeftAddress = j + (i + quadRow) * totalCol;
-					bottomRightAddress = (j + quadCol) + (i + quadRow) * totalCol;
+					topRightAddress = (j + 160) + i * totalCol;
+					bottomLeftAddress = j + (i + 120) * totalCol;
+					bottomRightAddress = (j + 160) + (i + 120) * totalCol;
 
 					pixelTopLeft = quadImageTopLeft[pixelAddress];
 					pixelTopRight = quadImageTopRight[pixelAddress];
@@ -218,3 +217,5 @@ int main(void){
 
 	}
 }
+
+

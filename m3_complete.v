@@ -54,9 +54,7 @@ module m3_complete (
 
 // Define wires
 wire vga_clk;
-wire [15:0] data_raw; 
-wire [15:0] data_buff;
-wire [11:0] pixel_rgb;
+wire [11:0] data_raw, data_buff;
 wire [16:0] read_address, write_address;
 wire [31:0] usec_count;
 wire [23:0] hex0;
@@ -187,8 +185,5 @@ assign HEX0 = hex0[7:0];
 assign HEX1 = hex0[15:8];
 assign HEX2 = hex0[23:16];
 assign HEX3 = hex3[7:0];
-
-// Pixel Buffer
-assign pixel_rgb = data_buff[11:0];
 
 endmodule

@@ -60,8 +60,8 @@ module vga_controller (
 
 	assign pixelValid = (H_ADDR >= 144 && H_ADDR < 784) && (V_ADDR >= 35 && V_ADDR < 515);
 	assign VGA_R = pixelValid ? VGA_DATA[11:8] : 4'd0;
-	assign VGA_G = pixelValid ? VGA_DATA[7:4]  : 4'd0;
-	assign VGA_B = pixelValid ? VGA_DATA[3:0]  : 4'd0;
+	assign VGA_G = pixelValid ? VGA_DATA[7:4] : 4'd0;
+	assign VGA_B = pixelValid ? VGA_DATA[3:0] : 4'd0;
 	
 	wire [18:0] H_MEM_ADDR, V_MEM_ADDR;	
 	
