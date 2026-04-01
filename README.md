@@ -1,35 +1,113 @@
-# Project Name: ECE3073 Project - Milestone 1 (B06)
+# FPGA Image Processing System — Multi-Core Nios II Architecture
 
-## Group members
-- Aadi Mahajan            [33855994]   (amah0061@student.monash.edu) amah0061
-- James Thomson           [33856257]   (jtho0098@student.monash.edu) James-Thomson1
-- Lance Miranda           [31481795]   (lmir0004@student.monash.edu) LanceMir
-- Ryan Shanta             [32284470]   (rsha0057@student.monash.edu) rsha0057
-- Xavier Hasiotis-Welsh   [33880271]   (xhas0001@student.monash.edu) Xavier714714
+**Monash University | ECE3073 Digital Systems Project | 2025**
 
-## Project Description:
-This project takes an image from an ESP-Camera and utilises a NIOS processor to store the image in SDRAM. The camera can take in a larger image or an image a quarter of the size depending on if the user wants to output a single image or four images at once. The processor can then apply alterations to the image including flipping, blurring and edge detection depending on what the user wishes to display. In single image mode the VGA Controller then outputs the desired image to an output peripheral and in quad image mode the VGA Controller then displays the desired four smaller images to the output peripheral. The user controls these images using the DE-10s switches, keys, and onboard accelerometer. The images are collected from the camera using a packed data format and are displayed in colour. In addition, the project utilises a total of three processors to boost system performance.
+---
 
-In order to complete this, the project encompasses the qsys system made using the Quartus Platform Designer. It also utilises the Quartus IP Block to create supporting hardware. Using this hardware setup, Eclipse software (c code) enables an image to be output.
+## Overview
+This project implements a real-time **image acquisition and processing system** on an FPGA platform using a multi-core **Nios II processor architecture**. An ESP32-CAM module captures image data, which is transferred to the FPGA and stored in SDRAM for processing and display.
 
-## Installation / Setup Instructions:
-- Open Quartus and select the open project option
-- Navigate through your directory to the local repository and select the .qpf project file
-- Open the platform designer and select the m1_nios_system.qsys file and generate HDL
-- Compile the main Quartus program
-- Go to the programmer and add the .sof file and run
-- Open eclipse and set the workspace to the base ECE3073 Project folder
-- Click file -> new -> NIOS II Application and BSP from Template
-- Select the .sopc file in the project directory and create a hello world small project and select the spi processor
-- Repeat the above two steps to create projects for the display and processing processors
-- Ensure each processor is using the right memory space by checking the linker script of each bsp
-- In each bsp editor under drivers ensure the "enable jtag uart ignore fifo full error" box is ticked
-- Right-click on the each bsp folder and select the NIOS II option. And then generate BSP
-- Select project at the top and clean project and then press crtl + B to build the project
-- Create a run configuration and then run the project
+The system supports both **single-image and quad-image display modes**, allowing multiple processed outputs to be visualised simultaneously. A range of image processing operations — including flipping, blurring, and edge detection — are performed in real time, with user interaction handled through onboard hardware inputs.
 
-## Usage Examples
-This project has wide usage applications, one of which is a way to learn the basics of input/output peripherals and understanding how processor memory operates. The project can also apply a number of alterations to images and display and compare them. Additionally, the project can display a video feed in colour.
+To improve performance and throughput, the design leverages **three independent Nios II processors**, distributing tasks across acquisition, processing, and display pipelines.
 
-## Licensing
-To ensure the project runs correctly, a Quartus license is required. Make sure you are connected to eduroam while on Monash campus or connect to Monash VPN if you are at home.
+---
+
+## Key Features
+- Real-time image capture from ESP32-CAM  
+- Multi-core processing using **three Nios II processors**  
+- Dual display modes:
+  - Single full-resolution image  
+  - Quad-image comparison mode  
+- Hardware-based user control (switches, keys, accelerometer)  
+- Image processing operations:
+  - Flip transformations  
+  - Gaussian-style blur  
+  - Edge detection  
+- SDRAM-based frame buffering for efficient data handling  
+
+---
+
+## System Architecture
+
+### 1. Image Acquisition
+Image data is captured from the ESP32-CAM in a **packed pixel format** and streamed into SDRAM via the Nios II system.
+
+### 2. Multi-Core Processing
+The system distributes workload across three processors:
+- **Input Processor** → Handles camera data ingestion  
+- **Processing Processor** → Applies image transformations  
+- **Display Processor** → Manages VGA output  
+
+This parallel architecture significantly improves system responsiveness and throughput.
+
+### 3. Display Output
+A VGA controller reads processed image data from SDRAM and outputs:
+- A single processed image, or  
+- Four processed variants simultaneously (quad mode)
+
+---
+
+## Tech Stack
+- **Hardware:** Intel DE10-Standard FPGA, ESP32-CAM  
+- **Platform:** Quartus + Platform Designer (Qsys)  
+- **Processors:** Nios II (multi-core system)  
+- **Language:** C  
+- **Libraries:** Custom drivers, FPGA IP cores  
+- **Memory:** SDRAM for frame buffering  
+
+---
+
+## Setup & Build Instructions
+
+### FPGA Configuration
+1. Open project in Quartus (`.qpf`)
+2. Open Platform Designer (`m1_nios_system.qsys`)
+3. Generate HDL
+4. Compile the project
+5. Program FPGA using `.sof` file via Quartus Programmer
+
+### Nios II Software Setup
+1. Open Eclipse and set workspace to project directory  
+2. Create Nios II Application + BSP for each processor:
+   - Input processor  
+   - Processing processor  
+   - Display processor  
+3. Select correct `.sopcinfo` file  
+4. Configure BSP settings:
+   - Enable *JTAG UART ignore FIFO full error*  
+5. Generate BSPs and build all projects  
+6. Create run configurations and execute  
+
+---
+
+## Applications
+- Embedded image processing systems  
+- FPGA-based vision pipelines  
+- Real-time multi-core processing demonstrations  
+- Educational platform for hardware/software co-design  
+
+---
+
+## Key Challenges
+- Efficiently managing shared SDRAM access across multiple processors  
+- Synchronising inter-processor communication and data flow  
+- Handling real-time constraints on FPGA-based systems  
+- Optimising memory bandwidth for image throughput  
+
+---
+
+## Acknowledgement
+This project was originally developed as part of a group project (Team B06, Monash University).
+
+This repository represents a personal copy with my contributions in:
+- Multi-processor system design  
+- Memory management and SDRAM interfacing  
+- Image processing pipeline implementation  
+- System integration and optimisation  
+
+---
+
+## License
+This project is intended for educational use.  
+A valid Intel Quartus license is required to build and run the system.
